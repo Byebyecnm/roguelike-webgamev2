@@ -2,15 +2,15 @@
 
 const characters = [
   { name:"Frieren", img:"images/characters/frieren.png",
-    hp:60, mana:120, dmg:40, armor:20, mr:40,
-    critChance: 0, critMult: 2.0,
-    skillMult:1.7, skillCost:30,
+    hp:75, mana:200, dmg:50, armor:35, mr:40,
+    critChance: 5, critMult: 2.0,
+    skillMult:1.7, skillCost:20,
     passive:{ icon:"images/passives/mage.png", text:"Büyü hasarı %20 artar." }
   },
   { name:"Fern", img:"images/characters/fern.png",
-    hp:70, mana:110, dmg:45, armor:25, mr:35,
+    hp:70, mana:140, dmg:40, armor:28, mr:35,
     critChance: 0, critMult: 2.0,
-    skillMult:1.6, skillCost:25,
+    skillMult:1.6, skillCost:10,
     passive:{ icon:"images/passives/mana.png", text:"Mana harcaması %20 azalır." }
   },
   { name:"Levi", img:"images/characters/levi.png",
@@ -20,14 +20,14 @@ const characters = [
     passive:{ icon:"images/passives/crit.png", text:"İlk kritik vurduğunda kritik şansı %10 artar." }
   },
   { name:"Eren", img:"images/characters/eren.png",
-    hp:120, mana:20, dmg:80, armor:50, mr:25,
+    hp:140, mana:15, dmg:75, armor:50, mr:50,
     critChance: 0, critMult: 2.0,
     skillMult:1.4, skillCost:15,
     passive:{ icon:"images/passives/rage.png", text:"Can azaldıkça hasar artar." }
   },
   { name:"Light Yagami", img:"images/characters/light.png",
-    hp:50, mana:140, dmg:35, armor:15, mr:45,
-    critChance: 0, critMult: 2.5,
+    hp:65, mana:160, dmg:45, armor:25, mr:45,
+    critChance: 25, critMult: 2.5,
     skillMult:2.0, skillCost:40,
     passive:{ icon:"images/passives/death.png", text:"Kritik vurduğunda düşmanın maksimum canının %5'i kadar ekstra hasar verir." }
   },
@@ -50,7 +50,7 @@ const characters = [
     passive:{ icon:"images/passives/kyuubi.png", text:"HP %30'un altına düştüğünde tüm istatistikler %30 artar." }
   },
   { name:"Guts", img:"images/characters/guts.png",
-    hp:130, mana:15, dmg:90, armor:55, mr:20,
+    hp:140, mana:25, dmg:86, armor:53, mr:20,
     critChance: 0, critMult: 2.2,
     skillMult:1.3, skillCost:10,
     passive:{ icon:"images/passives/berserker.png", text:"Her vuruşta %5 ihtimalle öfke moduna girer ve 3 tur boyunca hasar %40 artar." }
@@ -88,22 +88,22 @@ const companions = [
 ];
 
 const shopItems = [
-  { id:"hp_pot", name:"Can İksiri", img:"images/items/iksir.png", price:20, usable:true, stackable:true,
+  { id:"hp_pot", name:"Can İksiri", img:"images/items/iksir.png", price:30, usable:true, stackable:true,
     desc:"30 HP restore eder.",
     use:()=>{ player.hp = Math.min(player.maxHp, player.hp + 30); } },
-  { id:"mana_pot", name:"Mana İksiri", img:"images/items/manapot.png", price:20, usable:true, stackable:true,
+  { id:"mana_pot", name:"Mana İksiri", img:"images/items/manapot.png", price:30, usable:true, stackable:true,
     desc:"30 Mana restore eder.",
     use:()=>{ player.mana = Math.min(player.maxMana, player.mana + 30); } },
-  { id:"staff", name:"Luden", img:"images/items/luden.png", price:60, usable:false,
-    desc:"Hasar +20 verir.",
-    passive:()=>{ player.dmg += 20; } },
+  { id:"staff", name:"Luden", img:"images/items/luden.png", price:150, usable:false,
+    desc:"Hasar +45 verir.",
+    passive:()=>{ player.dmg += 45; } },
   { id:"armor", name:"Çivili Zırh", img:"images/items/civili.png", price:50, usable:false,
     desc:"Zırh +15 verir.",
     passive:()=>{ player.armor += 15; } },
   { id:"crit_item", name:"Infinity Edge", img:"images/items/infinity.png", price:80, usable:false,
     desc:"Kritik şansı +15% verir.",
     passive:()=>{ player.critChance += 15; } },
-  { id:"armor+tear", name:"Ruh Gömleği", img:"images/items/ruhgomlek.png", price:150, usable:false,
+  { id:"armor+tear", name:"Ruh Gömleği", img:"images/items/ruhgomlek.png", price:200, usable:false,
     desc:"Zırh +15, Maksimum Mana +30 ve Maksimum Can +20 verir.",
     passive:()=>{ 
       player.armor += 15; 
@@ -112,14 +112,14 @@ const shopItems = [
       player.maxHp += 20;
       player.hp += 20;
     } },
-  { id:"vampiric", name:"Kanlı Kılıç", img:"images/items/vampiric.png", price:100, usable:false,
-    desc:"Verdiğin hasarın %20'si kadar can kazanırsın.",
-    passive:()=>{ player.lifesteal = 0.2; } },
-  { id:"warmog", name:"Warmog's Armor", img:"images/items/warmog.png", price:200, usable:false,
-    desc:"Maksimum Can +60 verir ve her tur başında +10 HP rejenerasyon.",
+  { id:"vampiric", name:"Kanasusamış", img:"images/items/vampiric.png", price:300, usable:false,
+    desc:"Verdiğin hasarın %10'u kadar can kazanırsın.",
+    passive:()=>{ player.lifesteal = 0.1; } },
+  { id:"warmog", name:"Warmog's Armor", img:"images/items/warmog.png", price:300, usable:false,
+    desc:"Maksimum Can +80 verir ve her tur başında +10 HP rejenerasyon.",
     passive:()=>{ 
-      player.maxHp += 60; 
-      player.hp += 60;
+      player.maxHp += 80; 
+      player.hp += 80;
       player.warmog = true;
     } },
   { id:"rabadons", name:"Rabadon's Deathcap", img:"images/items/rabadon.png", price:180, usable:false,
@@ -129,34 +129,16 @@ const shopItems = [
       player.mana += 50;
       player.mr += 15;
       player.rabadon = true;
-    } },
-  { id:"giants_belt", name:"Giant's Belt", img:"images/items/belt.png", price:70, usable:false,
-    desc:"Maksimum Can +40 verir.",
-    passive:()=>{ 
-      player.maxHp += 40; 
-      player.hp += 40;
-    } },
-  { id:"tear", name:"Tear of Goddess", img:"images/items/tear.png", price:60, usable:false,
-    desc:"Maksimum Mana +40 verir.",
-    passive:()=>{ 
-      player.maxMana += 40; 
-      player.mana += 40;
-    } },
-  { id:"thornmail", name:"Thornmail", img:"images/items/thornmail.png", price:120, usable:false,
-    desc:"Zırh +25 verir ve aldığın hasarın %15'ini düşmana geri yansıtır.",
-    passive:()=>{ 
-      player.armor += 25;
-      player.thornmail = 0.15;
-    } },
+    } },
 ];
 
 const enemyTypes = [
-  { name:"Goblin", hp:60, dmg:15, armor:10, mr:5, gold:25, img:"images/enemy.png" },
-  { name:"Ork", hp:90, dmg:25, armor:20, mr:10, gold:35, img:"images/enemy.png" },
-  { name:"Şövalye", hp:120, dmg:30, armor:35, mr:15, gold:45, img:"images/enemy.png" },
-  { name:"Karanlık Büyücü", hp:80, dmg:40, armor:15, mr:40, gold:50, img:"images/enemy.png" },
-  { name:"Dev", hp:150, dmg:45, armor:30, mr:20, gold:60, img:"images/enemy.png" },
-  { name:"Ejderha", hp:200, dmg:55, armor:40, mr:30, gold:100, img:"images/enemy.png" },
+  { name:"Goblin", hp:60, dmg:18, armor:15, mr:5, gold:15, img:"images/enemy.png" },
+  { name:"Ork", hp:90, dmg:29, armor:20, mr:10, gold:25, img:"images/enemy.png" },
+  { name:"Şövalye", hp:120, dmg:37, armor:35, mr:15, gold:35, img:"images/enemy.png" },
+  { name:"Karanlık Büyücü", hp:80, dmg:45, armor:15, mr:45, gold:50, img:"images/enemy.png" },
+  { name:"Dev", hp:150, dmg:50, armor:30, mr:20, gold:60, img:"images/enemy.png" },
+  { name:"Ejderha", hp:200, dmg:65, armor:40, mr:30, gold:100, img:"images/enemy.png" },
 ];
 
 // ==== STATE ====
