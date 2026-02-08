@@ -320,8 +320,20 @@ button:active {
 
 #companionGrid {
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap:15px;
+}
+
+@media (max-width: 768px) {
+  #companionGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  #companionGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .shopItem {
