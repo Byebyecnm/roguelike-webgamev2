@@ -49,9 +49,10 @@ button:active {
   flex-direction:column;
   justify-content:flex-start;
   align-items:center;
-  gap:20px;
-  padding: 20px 10px;
+  gap:15px;
+  padding: 20px 10px 80px 10px; /* Alt padding arttırıldı */
   overflow-y: auto;
+  position: relative;
 }
 
 #characterSelectScreen h2 {
@@ -114,23 +115,34 @@ button:active {
 }
 
 .selectButtons {
-  width: 100%;
-  max-width: 300px;
-  text-align: center;
-  padding: 10px;
-  position: sticky;
+  position: fixed;
   bottom: 0;
-  background: #111;
-  z-index: 10;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  padding: 15px 20px;
+  background: linear-gradient(to top, #111 80%, transparent);
+  z-index: 100;
+  border-top: 2px solid #6b3fa0;
 }
 
 #confirmBtn {
   width: 100%;
-  padding: 14px;
-  font-size: 16px;
+  max-width: 400px;
+  padding: 16px;
+  font-size: 18px;
   font-weight: bold;
   background: linear-gradient(135deg, #6b3fa0 0%, #8b5fc0 100%);
-  box-shadow: 0 4px 15px rgba(107, 63, 160, 0.4);
+  box-shadow: 0 4px 15px rgba(107, 63, 160, 0.6);
+  border: 3px solid gold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(107, 63, 160, 0.8); }
 }
 
 /* GAME - Desktop */
