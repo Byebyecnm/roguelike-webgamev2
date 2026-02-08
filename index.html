@@ -27,22 +27,31 @@
 <div id="gameScreen" class="screen">
 
   <div class="panel leftPanel">
-    <img id="portrait" class="portrait">
-    <div id="charName" style="font-weight:bold;text-align:center;"></div>
+    <div class="mobileHeader">
+      <img id="portrait" class="portrait">
+      <div class="mobileStats">
+        <div id="charName" style="font-weight:bold;"></div>
+        
+        <div class="barContainer">
+          <div class="barValueText" id="hpValueText"></div>
+          <div class="bar"><div class="barFill hp" id="hpBar"></div></div>
+        </div>
 
-    <div class="barContainer">
-      <div class="barValueText" id="hpValueText"></div>
-      <div class="bar"><div class="barFill hp" id="hpBar"></div></div>
-    </div>
-
-    <div class="barContainer">
-      <div class="barValueText" id="manaValueText"></div>
-      <div class="bar"><div class="barFill mana" id="manaBar"></div></div>
+        <div class="barContainer">
+          <div class="barValueText" id="manaValueText"></div>
+          <div class="bar"><div class="barFill mana" id="manaBar"></div></div>
+        </div>
+      </div>
     </div>
 
     <div id="statsText" style="font-size:12px;"></div>
     <div style="margin:8px 0;">Gold: <span id="goldText" class="gold">0</span></div>
     <div style="color:#4caf50;font-weight:bold;" id="turnText">Tur: 1/50</div>
+
+    <div class="leftBox">
+      <h3>Başarımlar</h3>
+      <div id="achievementArea" style="font-size:10px;max-height:100px;overflow-y:auto;"></div>
+    </div>
 
     <div class="leftBox">
       <h3>Pasif</h3>
