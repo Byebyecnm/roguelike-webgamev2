@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Roguelike Web Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginScreen" class="screen active">
+  <h1>Roguelike Macerasına Hoş Geldin</h1>
+  <p style="color:#aaa;margin-bottom:20px;">50 turu tamamla ve kazanan sen ol!</p>
+  <input id="playerNameInput" placeholder="Karakter adını gir" />
+  <button id="startBtn">Başla</button>
+</div>
+
+<div id="characterSelectScreen" class="screen">
+  <h2>Karakterini Seç</h2>
+  <p style="color:#aaa;font-size:14px;margin-bottom:10px;">Her kart için 1 yenileme hakkın var</p>
+  <div class="cardRow" id="cardRow"></div>
+  <div class="selectButtons">
+    <button id="confirmBtn" style="display:none;">✅ Seçimi Onayla</button>
+  </div>
+</div>
+
+<div id="gameScreen" class="screen">
+
+  <div class="panel leftPanel">
+    <img id="portrait" class="portrait">
+    <div id="charName" style="font-weight:bold;text-align:center;"></div>
+
+    <div class="barContainer">
+      <div class="barValueText" id="hpValueText"></div>
+      <div class="bar"><div class="barFill hp" id="hpBar"></div></div>
+    </div>
+
+    <div class="barContainer">
+      <div class="barValueText" id="manaValueText"></div>
+      <div class="bar"><div class="barFill mana" id="manaBar"></div></div>
+    </div>
+
+    <div id="statsText" style="font-size:12px;"></div>
+    <div style="margin:8px 0;">Gold: <span id="goldText" class="gold">0</span></div>
+    <div style="color:#4caf50;font-weight:bold;" id="turnText">Tur: 1/50</div>
+
+    <div class="leftBox">
+      <h3>Pasif</h3>
+      <div id="passiveArea"></div>
+    </div>
+
+    <div class="leftBox">
+      <h3>Yardımcı</h3>
+      <div id="companionArea" style="text-align:center;color:#888;font-size:11px;">
+        Tur 25'te açılır
+      </div>
+    </div>
+
+    <div class="leftBox">
+      <h3>Eşyalar</h3>
+      <div class="itemGrid" id="itemGrid"></div>
+      <button class="shopBtn" id="openShopBtn">🛒 Dükkan</button>
+    </div>
+  </div>
+
+  <div class="centerPanel">
+    <div class="battleArea" id="battleArea"></div>
+    <div class="battleButtons">
+      <button id="attackBtn">⚔️ Saldır</button>
+      <button id="skillBtn">🔮 Skill</button>
+      <button id="defendBtn">🛡️ Savun</button>
+    </div>
+  </div>
+
+  <div class="panel rightPanel">
+    <h3>Savaş Günlüğü</h3>
+    <div class="log" id="logPanel"></div>
+  </div>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script src="game.js"></script>
+</body>
+</html>
