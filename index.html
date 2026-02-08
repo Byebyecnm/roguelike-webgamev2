@@ -45,13 +45,20 @@
     </div>
 
     <div id="statsText" style="font-size:12px;"></div>
-    <div style="margin:8px 0;">Gold: <span id="goldText" class="gold">0</span></div>
-    <div style="color:#4caf50;font-weight:bold;" id="turnText">Tur: 1/50</div>
+    
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0;gap:8px;">
+      <div>
+        <div>Gold: <span id="goldText" class="gold">0</span></div>
+        <div style="color:#4caf50;font-weight:bold;" id="turnText">Tur: 1/50</div>
+      </div>
+      <button class="shopBtn" id="openShopBtn" title="Dükkan">
+        🛒
+      </button>
+    </div>
 
     <div class="leftBox">
       <h3>Eşyalar</h3>
       <div class="itemGrid" id="itemGrid"></div>
-      <button class="shopBtn" id="openShopBtn">🛒 Dükkan</button>
     </div>
 
     <div class="leftBox">
