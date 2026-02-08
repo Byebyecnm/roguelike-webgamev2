@@ -594,6 +594,17 @@ button:active {
   transform: translateY(-5px) scale(1.02);
 }
 
+/* Desktop Only - Mobilde gizle */
+.desktopOnly {
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .desktopOnly {
+    display: none !important;
+  }
+}
+
 /* MOBILE RESPONSIVE */
 
 @media (max-width: 1024px) {
@@ -762,13 +773,26 @@ button:active {
     top: -14px;
   }
   
+  .itemGrid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2px;
+  }
+  
   .itemSlot {
     border-width: 1px;
   }
   
   .itemSlot img {
-    max-width: 80%;
-    max-height: 80%;
+    max-width: 65%;
+    max-height: 65%;
+  }
+  
+  .stackCount {
+    font-size: 9px;
+  }
+  
+  .passiveBadge {
+    font-size: 8px;
   }
 }
 
@@ -812,8 +836,27 @@ button:active {
   }
   
   .itemGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 3px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+  }
+  
+  .itemSlot {
+    border-width: 1px;
+  }
+  
+  .itemSlot img {
+    max-width: 60%;
+    max-height: 60%;
+  }
+  
+  .stackCount {
+    font-size: 8px;
+    padding: 1px 2px;
+  }
+  
+  .passiveBadge {
+    font-size: 7px;
+    padding: 1px 2px;
   }
   
   .tooltip {

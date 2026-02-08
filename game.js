@@ -2,108 +2,108 @@
 
 const characters = [
   { name:"Frieren", img:"images/characters/frieren.png",
-    hp:60, mana:120, dmg:40, armor:20, mr:40,
-    critChance: 0, critMult: 2.0,
-    skillMult:1.7, skillCost:30,
-    passive:{ icon:"images/passives/mage.png", text:"Büyü hasarı %20 artar." }
+    hp:80, mana:160, ad:20, ap:65, armor:25, mr:45,
+    critChance: 0, critMult: 2.0, lifesteal: 0,
+    skillMult:1.7, skillCost:20,
+    passive:{ icon:"images/passives/frierenPassive.png", text:"Büyü hasarı %20 artar." }
   },
   { name:"Fern", img:"images/characters/fern.png",
-    hp:70, mana:110, dmg:45, armor:25, mr:35,
-    critChance: 0, critMult: 2.0,
+    hp:70, mana:130, ad:28, ap:55, armor:25, mr:35,
+    critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.6, skillCost:25,
-    passive:{ icon:"images/passives/mana.png", text:"Mana harcaması %20 azalır." }
+    passive:{ icon:"images/passives/fernPassive.png", text:"Mana harcaması %20 azalır." }
   },
   { name:"Levi", img:"images/characters/levi.png",
-    hp:90, mana:30, dmg:85, armor:45, mr:20,
-    critChance: 0, critMult: 2.0,
+    hp:90, mana:25, ad:70, ap:20, armor:45, mr:20,
+    critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.5, skillCost:20,
-    passive:{ icon:"images/passives/crit.png", text:"İlk kritik vurduğunda kritik şansı %10 artar." }
+    passive:{ icon:"images/passives/leviPassive.png", text:"İlk kritik vurduğunda kritik şansı %10 artar." }
   },
   { name:"Eren", img:"images/characters/eren.png",
-    hp:120, mana:20, dmg:80, armor:50, mr:25,
-    critChance: 0, critMult: 2.0,
+    hp:125, mana:25, ad:68, ap:25, armor:50, mr:25,
+    critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.4, skillCost:15,
-    passive:{ icon:"images/passives/rage.png", text:"Can azaldıkça hasar artar." }
+    passive:{ icon:"images/passives/erenPassive.png", text:"Can azaldıkça hasar artar." }
   },
   { name:"Light Yagami", img:"images/characters/light.png",
-    hp:50, mana:140, dmg:35, armor:15, mr:45,
-    critChance: 0, critMult: 2.5,
+    hp:50, mana:140, ad:20, ap:55, armor:15, mr:45,
+    critChance: 0, critMult: 2.5, lifesteal: 0,
     skillMult:2.0, skillCost:40,
-    passive:{ icon:"images/passives/death.png", text:"Kritik vurduğunda düşmanın maksimum canının %5'i kadar ekstra hasar verir." }
+    passive:{ icon:"images/passives/lightPassive.png", text:"Kritik vurduğunda düşmanın maksimum canının %5'i kadar ekstra hasar verir." }
   },
   { name:"Gojo Satoru", img:"images/characters/gojo.png",
-    hp:80, mana:100, dmg:60, armor:30, mr:50,
-    critChance: 0, critMult: 2.0,
+    hp:80, mana:100, ad:40, ap:60, armor:30, mr:50,
+    critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.8, skillCost:35,
-    passive:{ icon:"images/passives/infinity.png", text:"İlk 3 düşman saldırısında aldığı hasar %50 azalır." }
+    passive:{ icon:"images/passives/gojoPassive.png", text:"İlk 3 düşman saldırısında aldığı hasar %50 azalır." }
   },
   { name:"Saitama", img:"images/characters/saitama.png",
-    hp:150, mana:10, dmg:100, armor:60, mr:30,
-    critChance: 0, critMult: 3.0,
+    hp:150, mana:10, ad:100, ap:15, armor:60, mr:30,
+    critChance: 0, critMult: 3.0, lifesteal: 0,
     skillMult:1.2, skillCost:5,
-    passive:{ icon:"images/passives/punch.png", text:"Normal saldırıları %20 ihtimalle anında düşmanı öldürür (Boss hariç)." }
+    passive:{ icon:"images/passives/saitamaPassive.png", text:"Normal saldırıları %20 ihtimalle anında düşmanı öldürür (Boss hariç)." }
   },
   { name:"Naruto", img:"images/characters/naruto.png",
-    hp:100, mana:80, dmg:70, armor:40, mr:35,
-    critChance: 0, critMult: 2.0,
+    hp:100, mana:80, ad:55, ap:50, armor:40, mr:35,
+    critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.6, skillCost:25,
-    passive:{ icon:"images/passives/kyuubi.png", text:"HP %30'un altına düştüğünde tüm istatistikler %30 artar." }
+    passive:{ icon:"images/passives/narutoPassive.png", text:"HP %30'un altına düştüğünde tüm istatistikler %30 artar." }
   },
   { name:"Guts", img:"images/characters/guts.png",
-    hp:130, mana:15, dmg:90, armor:55, mr:20,
-    critChance: 0, critMult: 2.2,
+    hp:130, mana:15, ad:75, ap:20, armor:55, mr:20,
+    critChance: 0, critMult: 2.2, lifesteal: 0,
     skillMult:1.3, skillCost:10,
-    passive:{ icon:"images/passives/berserker.png", text:"Her vuruşta %5 ihtimalle öfke moduna girer ve 3 tur boyunca hasar %40 artar." }
+    passive:{ icon:"images/passives/gutsPassive.png", text:"Her vuruşta %5 ihtimalle öfke moduna girer ve 3 tur boyunca hasar %40 artar." }
   },
 ];
 
 const companions = [
   { name:"Himmel", img:"images/characters/himmel.png",
-    bonus:{ type:"dmg", value:15, text:"Hasar +15" }
+    bonus:{ type:"ad", value:35, text:"Saldırı Gücü +35" }
   },
   { name:"Heiter", img:"images/characters/heiter.png",
-    bonus:{ type:"heal", value:5, text:"Her turda +5 HP rejenerasyon" }
-  },
-  { name:"Eisen", img:"images/characters/eisen.png",
-    bonus:{ type:"armor", value:20, text:"Zırh +20" }
+    bonus:{ type:"heal", value:15, text:"Her turda +15 HP rejenerasyon" }
   },
   { name:"Stark", img:"images/characters/stark.png",
     bonus:{ type:"crit", value:10, text:"Kritik şansı +10%" }
   },
   { name:"Komutan Erwin", img:"images/characters/erwin.png",
-    bonus:{ type:"strategy", value:20, text:"Tüm istatistikler +10%" }
+    bonus:{ type:"strategy", value:20, text:"Tüm istatistikler +20%" }
   },
   { name:"Mikasa Ackerman", img:"images/characters/mikasa.png",
-    bonus:{ type:"speed", value:15, text:"Saldırı başına %15 ihtimalle ekstra vuruş" }
+    bonus:{ type:"speed", value:25, text:"Saldırı başına %25 ihtimalle ekstra vuruş" }
   },
   { name:"L", img:"images/characters/l.png",
-    bonus:{ type:"intelligence", value:25, text:"Skill hasarı %25 artar ve skill maliyeti %15 azalır" }
+    bonus:{ type:"intelligence", value:25, text:"Yetenek Gücü +25 ve Skill maliyeti %20 azalır" }
   },
   { name:"Shinigami", img:"images/characters/shinigami.png",
     bonus:{ type:"death", value:10, text:"Düşman öldüğünde %20 HP ve Mana restore" }
   },
   { name:"Rock Lee", img:"images/characters/lee.png",
-    bonus:{ type:"taijutsu", value:20, text:"Normal saldırı hasarı %30 artar" }
+    bonus:{ type:"taijutsu", value:20, text:"Saldırı Gücü +25" }
   },
 ];
 
 const shopItems = [
-  { id:"hp_pot", name:"Can İksiri", img:"images/items/iksir.png", price:20, usable:true, stackable:true,
+  { id:"hp_pot", name:"Can İksiri", img:"images/items/iksir.png", price:25, usable:true, stackable:true,
     desc:"30 HP restore eder.",
     use:()=>{ player.hp = Math.min(player.maxHp, player.hp + 30); } },
-  { id:"mana_pot", name:"Mana İksiri", img:"images/items/manapot.png", price:20, usable:true, stackable:true,
+  { id:"mana_pot", name:"Mana İksiri", img:"images/items/manapot.png", price:25, usable:true, stackable:true,
     desc:"30 Mana restore eder.",
     use:()=>{ player.mana = Math.min(player.maxMana, player.mana + 30); } },
-  { id:"staff", name:"Luden", img:"images/items/luden.png", price:150, usable:false,
-    desc:"Hasar +20 verir.",
-    passive:()=>{ player.dmg += 20; } },
-  { id:"armor", name:"Çivili Zırh", img:"images/items/civili.png", price:200, usable:false,
-    desc:"Zırh +15 verir.",
-    passive:()=>{ player.armor += 15; } },
-  { id:"crit_item", name:"Infinity Edge", img:"images/items/infinity.png", price:200, usable:false,
-    desc:"Kritik şansı +15% verir.",
-    passive:()=>{ player.critChance += 15; } },
-  { id:"armor+tear", name:"Ruh Gömleği", img:"images/items/ruhgomlek.png", price:300, usable:false,
+  { id:"staff", name:"Luden", img:"images/items/luden.png", price:175, usable:false,
+    desc:"Yetenek Gücü +40 verir.",
+    passive:()=>{ player.ap += 40; } },
+  { id:"sword", name:"Ölüm Kılıcı", img:"images/items/deathblade.png", price:280, usable:false,
+    desc:"Saldırı Gücü +85 verir.",
+    passive:()=>{ player.ad += 75; } },
+  { id:"armor", name:"Muhafızın Adağı", img:"images/items/protector.png", price:230, usable:false,
+    desc:"Zırh ve Büyü Direncine +25 verir. Maksimum Mana +25 artırır.",
+    passive:()=>{ player.armor += 15; player.maxMana+=25; player.mr+=25; } },
+  { id:"crit_item", name:"Infinity Edge", img:"images/items/infinity.png", price:225, usable:false,
+    desc:"Saldırı Gücün 35 artar. Kritik şansı +15% verir.",
+    passive:()=>{ player.critChance += 15; player.ad +=35; } },
+  { id:"armor+tear", name:"Ruh Gömleği", img:"images/items/ruhgomlek.png", price:280, usable:false,
     desc:"Zırh +15, Maksimum Mana +30 ve Maksimum Can +20 verir.",
     passive:()=>{ 
       player.armor += 15; 
@@ -113,8 +113,8 @@ const shopItems = [
       player.hp += 20;
     } },
   { id:"vampiric", name:"Kanlı Kılıç", img:"images/items/vampiric.png", price:300, usable:false,
-    desc:"Verdiğin hasarın %20'si kadar can kazanırsın.",
-    passive:()=>{ player.lifesteal = 0.2; } },
+    desc:"Can Çalma +20% verir.",
+    passive:()=>{ player.lifesteal += 0.2; } },
   { id:"warmog", name:"Warmog's Armor", img:"images/items/warmog.png", price:300, usable:false,
     desc:"Maksimum Can +60 verir ve her tur başında +10 HP rejenerasyon.",
     passive:()=>{ 
@@ -122,49 +122,64 @@ const shopItems = [
       player.hp += 60;
       player.warmog = true;
     } },
-  { id:"rabadons", name:"Rabadon's Deathcap", img:"images/items/rabadon.png", price:180, usable:false,
-    desc:"Maksimum Mana +50, Büyü Direnci +15 ve Skill hasarı %15 artar.",
+  { id:"rabadons", name:"Rabadonun Şapkası", img:"images/items/rabadon.png", price:200, usable:false,
+    desc:"Yetenek Gücü +55",
     passive:()=>{ 
-      player.maxMana += 50; 
-      player.mana += 50;
-      player.mr += 15;
+      player.ap += 55;
       player.rabadon = true;
     } },
-  { id:"giants_belt", name:"Giant's Belt", img:"images/items/belt.png", price:70, usable:false,
-    desc:"Maksimum Can +40 verir.",
+    { id:"kritap", name:"Mücevherli Eldiven", img:"images/items/kritap.png", price:175, usable:false,
+    desc:"Büyü Hasarını 30 artırır ve Kritik Şansın 15 artar.",
     passive:()=>{ 
-      player.maxHp += 40; 
-      player.hp += 40;
+      player.ap += 25; 
+      player.critChance += 20;
     } },
-  { id:"tear", name:"Tear of Goddess", img:"images/items/tear.png", price:60, usable:false,
-    desc:"Maksimum Mana +40 verir.",
+  { id:"thornmail", name:"Thornmail", img:"images/items/civili.png", price:200, usable:false,
+    desc:"Zırh +35 verir ve aldığın hasarın %25'ini düşmana geri yansıtır.",
     passive:()=>{ 
-      player.maxMana += 40; 
-      player.mana += 40;
+      player.armor += 35;
+      player.thornmail = 0.25;
     } },
-  { id:"thornmail", name:"Thornmail", img:"images/items/thornmail.png", price:120, usable:false,
-    desc:"Zırh +25 verir ve aldığın hasarın %15'ini düşmana geri yansıtır.",
+    { id:"gargoyl", name:"Gargoylun Taşzırhı", img:"images/items/gargoyl.png", price:300, usable:false,
+    desc:"Zırh ve Büyü Direnci 30 artırır. Her tur Zırh ve Büyü Direnci KALICI olarak 2 artar!",
     passive:()=>{ 
-      player.armor += 25;
-      player.thornmail = 0.15;
+      player.armor += 30; 
+      player.mr += 30;
+      player.gargoyl = true;
+    } },
+    { id:"titan", name:"Titanın Azmi", img:"images/items/titan.png", price:300, usable:false,
+    desc:"AD ve AP 15 artırır. Her tur AD ve AP KALICI olarak 2 artar!",
+    passive:()=>{ 
+      player.ad += 15; 
+      player.ap += 15;
+      player.titan = true;
+    } },
+        { id:"shojin", name:"Shojin'in Mızrağı", img:"images/items/shojin.png", price:300, usable:false,
+    desc:"AD +5 ve AP +15 artırır. Mana ve Max Mana 20 ARTAR! Ayrıca her tur MANAN 10 artar!",
+    passive:()=>{ 
+      player.ad += 5;
+      player.ap += 15;
+      player.maxMana += 20; 
+      player.mana += 20;
+      player.shojin = true;
     } },
 ];
 
 // Düşman tipleri (Daha çeşitli ve güçlü)
 const enemyTypes = [
   { name:"Goblin", hp:80, dmg:18, armor:12, mr:8, gold:25, img:"images/enemy.png" },
-  { name:"Kobold", hp:70, dmg:22, armor:10, mr:10, gold:22, img:"images/enemy.png" },
+  { name:"Kobold", hp:70, dmg:22, armor:10, mr:10, gold:30, img:"images/enemy.png" },
   { name:"Ork Savaşçısı", hp:110, dmg:28, armor:22, mr:12, gold:35, img:"images/enemy.png" },
   { name:"Troll", hp:130, dmg:25, armor:28, mr:10, gold:38, img:"images/enemy.png" },
   { name:"Kara Şövalye", hp:140, dmg:32, armor:38, mr:18, gold:45, img:"images/enemy.png" },
   { name:"Büyücü", hp:90, dmg:42, armor:18, mr:45, gold:50, img:"images/enemy.png" },
-  { name:"Vampir Lord", hp:120, dmg:38, armor:24, mr:35, gold:48, img:"images/enemy.png" },
+  { name:"Vampir Lord", hp:120, dmg:38, armor:24, mr:35, gold:60, img:"images/enemy.png" },
   { name:"Golem", hp:180, dmg:30, armor:50, mr:15, gold:55, img:"images/enemy.png" },
-  { name:"Dev Örümcek", hp:100, dmg:45, armor:20, mr:22, gold:52, img:"images/enemy.png" },
+  { name:"Dev Örümcek", hp:100, dmg:45, armor:20, mr:22, gold:65, img:"images/enemy.png" },
   { name:"Gargoyle", hp:150, dmg:40, armor:40, mr:28, gold:58, img:"images/enemy.png" },
-  { name:"Ateş Elemental", hp:110, dmg:50, armor:22, mr:40, gold:60, img:"images/enemy.png" },
+  { name:"Ateş Elemental", hp:110, dmg:50, armor:22, mr:40, gold:70, img:"images/enemy.png" },
   { name:"Buz Devi", hp:200, dmg:48, armor:35, mr:25, gold:65, img:"images/enemy.png" },
-  { name:"Ejderha Yavrusu", hp:180, dmg:52, armor:38, mr:32, gold:70, img:"images/enemy.png" },
+  { name:"Ejderha Yavrusu", hp:180, dmg:52, armor:38, mr:32, gold:75, img:"images/enemy.png" },
   { name:"Demon", hp:160, dmg:55, armor:32, mr:38, gold:75, img:"images/enemy.png" },
   { name:"Kızıl Ejderha", hp:250, dmg:60, armor:45, mr:35, gold:100, img:"images/enemy.png" },
   { name:"Antik Lich", hp:200, dmg:65, armor:35, mr:50, gold:95, img:"images/enemy.png" },
@@ -173,18 +188,18 @@ const enemyTypes = [
 // AUGMENT SİSTEMİ
 const augments = {
   silver: [
-    { id:"s1", name:"Küçük Hazine", icon:"💰", desc:"50 altın kazan", 
-      effect:()=>{ gold += 50; addLog("💰 +50 altın!"); } },
-    { id:"s2", name:"Sağlık İksiri", icon:"❤️", desc:"Max HP +20", 
-      effect:()=>{ player.maxHp += 20; player.hp += 20; addLog("❤️ Max HP +20!"); } },
-    { id:"s3", name:"Mana Pınarı", icon:"💙", desc:"Max Mana +20", 
-      effect:()=>{ player.maxMana += 20; player.mana += 20; addLog("💙 Max Mana +20!"); } },
-    { id:"s4", name:"Keskin Bıçak", icon:"🗡️", desc:"Hasar +10", 
-      effect:()=>{ player.dmg += 10; addLog("🗡️ Hasar +10!"); } },
-    { id:"s5", name:"Deri Zırh", icon:"🛡️", desc:"Zırh +10", 
-      effect:()=>{ player.armor += 10; addLog("🛡️ Zırh +10!"); } },
-    { id:"s6", name:"Şans Tılsımı", icon:"🍀", desc:"Kritik şansı +5%", 
-      effect:()=>{ player.critChance += 5; addLog("🍀 Kritik şansı +5%!"); } },
+    { id:"s1", name:"Prim", icon:"💰", desc:"65 altın kazan", 
+      effect:()=>{ gold += 65; addLog("💰 +65 altın!"); } },
+    { id:"s2", name:"Sağlık İksiri", icon:"❤️", desc:"Max HP +25", 
+      effect:()=>{ player.maxHp += 25; player.hp += 25; addLog("❤️ Max HP +25!"); } },
+    { id:"s3", name:"Mana Pınarı", icon:"💙", desc:"Max Mana +30", 
+      effect:()=>{ player.maxMana += 30; player.mana += 30; addLog("💙 Max Mana +30!"); } },
+    { id:"s4", name:"Keskin Bıçak", icon:"🗡️", desc:"Saldırı Gücü +30", 
+      effect:()=>{ player.ad += 30; addLog("🗡️ Saldırı Gücü +30!"); } },
+    { id:"s5", name:"Deri Zırh", icon:"🛡️", desc:"Zırh +20", 
+      effect:()=>{ player.armor += 20; addLog("🛡️ Zırh +20!"); } },
+    { id:"s6", name:"Şans Tılsımı", icon:"🍀", desc:"Kritik şansı +10%", 
+      effect:()=>{ player.critChance += 10; addLog("🍀 Kritik şansı +10%!"); } },
   ],
   gold: [
     { id:"g1", name:"Altın Hazine", icon:"💎", desc:"100 altın kazan", 
@@ -193,14 +208,14 @@ const augments = {
       effect:()=>{ player.maxHp += 50; player.hp += 50; addLog("❤️ Max HP +50!"); } },
     { id:"g3", name:"Sihirli Kaynak", icon:"💙", desc:"Max Mana +50", 
       effect:()=>{ player.maxMana += 50; player.mana += 50; addLog("💙 Max Mana +50!"); } },
-    { id:"g4", name:"Güç Taşı", icon:"⚔️", desc:"Hasar +25", 
-      effect:()=>{ player.dmg += 25; addLog("⚔️ Hasar +25!"); } },
+    { id:"g4", name:"Güç Taşı", icon:"⚔️", desc:"Saldırı Gücü +30", 
+      effect:()=>{ player.ad += 30; addLog("⚔️ Saldırı Gücü +30!"); } },
     { id:"g5", name:"Ejderha Pulları", icon:"🛡️", desc:"Zırh +20, Büyü Direnci +15", 
       effect:()=>{ player.armor += 20; player.mr += 15; addLog("🛡️ Zırh +20, MR +15!"); } },
     { id:"g6", name:"Şans Yıldızı", icon:"✨", desc:"Kritik şansı +10%", 
       effect:()=>{ player.critChance += 10; addLog("✨ Kritik şansı +10%!"); } },
-    { id:"g7", name:"Vampir Dişleri", icon:"🧛", desc:"Lifesteal +15%", 
-      effect:()=>{ player.lifesteal += 0.15; addLog("🧛 Lifesteal +15%!"); } },
+    { id:"g7", name:"Vampir Dişleri", icon:"🧛", desc:"Can Çalma +15%", 
+      effect:()=>{ player.lifesteal += 0.15; addLog("🧛 Can Çalma +15%!"); } },
     { id:"g8", name:"Bedava Eşya", icon:"🎁", desc:"Rastgele bir eşya kazan", 
       effect:()=>{ 
         const item = shopItems[Math.floor(Math.random() * shopItems.length)];
@@ -337,7 +352,7 @@ function renderSelectCards() {
       <img src="${c.img}">
       <div><b>${c.name}</b></div>
       <div class="charStats">HP:${c.hp} | Mana:${c.mana}</div>
-      <div class="charStats">Hasar:${c.dmg} | Zırh:${c.armor}</div>
+      <div class="charStats">AD:${c.ad} | AP:${c.ap}</div>
       <button class="rerollCardBtn" data-index="${i}" ${rerollUsed[i] ? 'disabled' : ''}>
         ${rerollUsed[i] ? '❌' : '🔄'}
       </button>
@@ -386,6 +401,9 @@ function startGame(char) {
   player.baseDmg = player.dmg;
   player.lifesteal = 0;
   player.warmog = false;
+  player.gargoyl = false;
+  player.shojin = false;
+  player.titan = false;
   player.rabadon = false;
   player.thornmail = 0;
   
@@ -419,7 +437,8 @@ function updateUI() {
   document.getElementById("manaValueText").textContent = `Mana: ${player.mana} / ${player.maxMana}`;
 
   document.getElementById("statsText").innerHTML =
-  `Hasar: ${player.dmg} | Kritik: %${player.critChance}<br>
+  `Saldırı Gücü: ${player.ad} | Yetenek Gücü: ${player.ap}<br>
+   Kritik: %${player.critChance} | Can Çalma: %${Math.floor(player.lifesteal * 100)}<br>
    Zırh: ${player.armor} | Büyü Direnci: ${player.mr}`;
   document.getElementById("goldText").textContent = gold;
   document.getElementById("turnText").textContent = `Tur: ${currentTurn}/${maxTurns}`;
@@ -898,7 +917,7 @@ document.getElementById("skillBtn").onclick = () => {
 
   // L companion - skill maliyeti %15 azalır
   if (companion && companion.bonus.type === "intelligence") {
-    cost = Math.floor(cost * 0.85);
+    cost = Math.floor(cost * 0.80);
   }
 
   if (player.mana < cost) {
@@ -1130,6 +1149,21 @@ function nextTurn() {
   if (player.warmog) {
     player.hp = Math.min(player.maxHp, player.hp + 10);
     addLog(`❤️ Warmog's Armor! +10 HP rejenerasyon`);
+  }
+
+  if (player.gargoyl) {
+    player.mr = Math.min(player.mr, player.mr + 2)
+    player.armor = Math.min(player.mr, player.mr + 2)
+  }
+
+  if (player.shojin) {
+    player.mana = Math.min(player.maxMana, player.mana + 10)
+    addLog("Shojin Mananı 10 arttırdı!")
+  }
+
+  if (player.titan) {
+    player.ad = Math.min(player.ad, player.ad + 2)
+    player.ap = Math.min(player.ap, player.ap + 2)
   }
 
   // Guts berserker countdown
