@@ -162,6 +162,30 @@ button:active {
   overflow-y:auto;
 }
 
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.rightPanel h3 {
+  margin: 0;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.rightPanel #achievementArea {
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.rightPanel .log {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .leftBox {
   border: 1px solid #444;
   padding: 8px;
@@ -514,18 +538,29 @@ button:active {
 }
 
 .shopBtn {
-  width: 100%;
-  margin-top: 8px;
-  background: #c28b4b;
-  border: none;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: linear-gradient(135deg, #c28b4b 0%, #d4a05d 100%);
+  border: 2px solid #FFD700;
   color: white;
+  font-size: 24px;
   font-weight: bold;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: all 0.2s;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(194, 139, 75, 0.4);
+  flex-shrink: 0;
 }
 
 .shopBtn:hover {
-  background: #d49b5b;
+  background: linear-gradient(135deg, #d49b5b 0%, #e4b06d 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(194, 139, 75, 0.6);
+}
+
+.shopBtn:active {
+  transform: scale(0.95);
 }
 
 /* Augment Cards */
@@ -694,7 +729,18 @@ button:active {
   }
   
   .rightPanel {
-    max-height: 180px;
+    max-height: none;
+    min-height: 300px;
+    flex: 1;
+  }
+  
+  #achievementArea {
+    max-height: 120px;
+  }
+  
+  .log {
+    flex: 1;
+    min-height: 150px;
   }
 
   .barContainer {
@@ -770,7 +816,16 @@ button:active {
   }
   
   .rightPanel {
-    max-height: 150px;
+    max-height: none;
+    min-height: 250px;
+  }
+  
+  #achievementArea {
+    max-height: 100px;
+  }
+  
+  .log {
+    min-height: 120px;
   }
   
   .log {
