@@ -94,16 +94,16 @@ const shopItems = [
   { id:"mana_pot", name:"Mana İksiri", img:"images/items/manapot.png", price:20, usable:true, stackable:true,
     desc:"30 Mana restore eder.",
     use:()=>{ player.mana = Math.min(player.maxMana, player.mana + 30); } },
-  { id:"staff", name:"Luden", img:"images/items/luden.png", price:60, usable:false,
+  { id:"staff", name:"Luden", img:"images/items/luden.png", price:150, usable:false,
     desc:"Hasar +20 verir.",
     passive:()=>{ player.dmg += 20; } },
-  { id:"armor", name:"Çivili Zırh", img:"images/items/civili.png", price:50, usable:false,
+  { id:"armor", name:"Çivili Zırh", img:"images/items/civili.png", price:200, usable:false,
     desc:"Zırh +15 verir.",
     passive:()=>{ player.armor += 15; } },
-  { id:"crit_item", name:"Infinity Edge", img:"images/items/infinity.png", price:80, usable:false,
+  { id:"crit_item", name:"Infinity Edge", img:"images/items/infinity.png", price:200, usable:false,
     desc:"Kritik şansı +15% verir.",
     passive:()=>{ player.critChance += 15; } },
-  { id:"armor+tear", name:"Ruh Gömleği", img:"images/items/ruhgomlek.png", price:150, usable:false,
+  { id:"armor+tear", name:"Ruh Gömleği", img:"images/items/ruhgomlek.png", price:300, usable:false,
     desc:"Zırh +15, Maksimum Mana +30 ve Maksimum Can +20 verir.",
     passive:()=>{ 
       player.armor += 15; 
@@ -112,10 +112,10 @@ const shopItems = [
       player.maxHp += 20;
       player.hp += 20;
     } },
-  { id:"vampiric", name:"Kanlı Kılıç", img:"images/items/vampiric.png", price:100, usable:false,
+  { id:"vampiric", name:"Kanlı Kılıç", img:"images/items/vampiric.png", price:300, usable:false,
     desc:"Verdiğin hasarın %20'si kadar can kazanırsın.",
     passive:()=>{ player.lifesteal = 0.2; } },
-  { id:"warmog", name:"Warmog's Armor", img:"images/items/warmog.png", price:200, usable:false,
+  { id:"warmog", name:"Warmog's Armor", img:"images/items/warmog.png", price:300, usable:false,
     desc:"Maksimum Can +60 verir ve her tur başında +10 HP rejenerasyon.",
     passive:()=>{ 
       player.maxHp += 60; 
@@ -267,6 +267,7 @@ let gold = 100;
 let inventory = {};
 let passiveItems = [];
 let purchasedItems = [];
+let selectedAugments = []; // Seçilen augmentler
 
 let currentTurn = 1;
 let maxTurns = 50;
@@ -1079,9 +1080,48 @@ function showAugmentSelection() {
       updateUI();
       renderInventory();
       checkAchievements();
+      
+      // Augment seçildikten sonra savaşa devam
+      continueAfterAugment();
     };
     grid.appendChild(d);
   });
+}
+
+// Augment sonrası devam
+function continueAfterAugment() {
+  // Düşman sayısı (erken artış)
+  let enemyCount = 1;
+  if (currentTurn >= 5) enemyCount = Math.random() < 0.2 ? 2 : 1;
+  if (currentTurn >= 15) enemyCount = Math.random() < 0.4 ? 2 : 1;
+  if (currentTurn >= 25) enemyCount = Math.random() < 0.5 ? Math.random() < 0.3 ? 3 : 2 : 1;
+  if (currentTurn >= 35) enemyCount = Math.random() < 0.6 ? Math.random() < 0.4 ? 3 : 2 : 1;
+
+  enemies = [];
+  
+  for (let i = 0; i < enemyCount; i++) {
+    let enemyIndex = Math.min(Math.floor(currentTurn / 5), enemyTypes.length - 1);
+    let template = enemyTypes[enemyIndex];
+    let enemy = JSON.parse(JSON.stringify(template));
+    
+    let boost = Math.floor(currentTurn / 5);
+    enemy.hp += boost * 15;
+    enemy.dmg += boost * 5;
+    enemy.armor += boost * 3;
+    
+    enemies.push(enemy);
+  }
+
+  selectedEnemyIndex = 0;
+  
+  if (enemyCount > 1) {
+    addLog(`⚔️ Tur ${currentTurn}: ${enemyCount} düşmanla karşılaşıyorsun!`);
+  } else {
+    addLog(`⚔️ Tur ${currentTurn}: ${enemies[0].name} ile karşılaşıyorsun!`);
+  }
+  
+  renderBattle();
+  checkAchievements();
 }
 
 // ===== BAŞARIM SİSTEMİ =====
