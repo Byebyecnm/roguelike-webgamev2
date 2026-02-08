@@ -391,7 +391,7 @@ function startGame(char) {
   gameScreen.classList.add("active");
 
   updateUI();
-  renderPassive();
+  renderFeatures();
   renderInventory();
   renderAchievements();
   startBattle();
@@ -414,24 +414,79 @@ function updateUI() {
    Zırh: ${player.armor} | Büyü Direnci: ${player.mr}`;
   document.getElementById("goldText").textContent = gold;
   document.getElementById("turnText").textContent = `Tur: ${currentTurn}/${maxTurns}`;
-
-  if (companion) {
-    document.getElementById("companionArea").innerHTML = `
-      <img src="${companion.img}" width="48" style="border-radius:50%;">
-      <div style="font-size:11px;">${companion.name}</div>
-      <div style="font-size:10px;color:#aaa;">${companion.bonus.text}</div>
-    `;
-  }
 }
 
-function renderPassive() {
-  const area = document.getElementById("passiveArea");
-  area.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;">
-      <img src="${player.passive.icon}" width="32">
-      <div style="font-size:11px;">${player.passive.text}</div>
+// ==== FEATURES (Pasif + Yardımcı + Augmentler) ====
+
+function renderFeatures() {
+  // 1. Karakter Pasifi
+  const passiveArea = document.getElementById("passiveArea");
+  passiveArea.innerHTML = `
+    <div style="border-left:3px solid #9c27b0;padding-left:8px;margin-bottom:8px;background:#1a1a1a;padding:6px;border-radius:4px;">
+      <div style="font-weight:bold;font-size:10px;color:#9c27b0;margin-bottom:4px;">KARAKTER PASİFİ</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img src="${player.passive.icon}" width="24">
+        <div style="font-size:10px;line-height:1.3;">${player.passive.text}</div>
+      </div>
     </div>
   `;
+
+  // 2. Yardımcı
+  const companionArea = document.getElementById("companionArea");
+  if (companion) {
+    companionArea.innerHTML = `
+      <div style="border-left:3px solid #4caf50;padding-left:8px;background:#1a1a1a;padding:6px;border-radius:4px;">
+        <div style="font-weight:bold;font-size:10px;color:#888;margin-bottom:4px;">YARDIMCI ÖZELLİĞİ</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <img src="${companion.img}" width="32" style="border-radius:50%;border:2px solid #4caf50;">
+          <div>
+            <div style="font-size:11px;font-weight:bold;color:#4caf50;">${companion.name}</div>
+            <div style="font-size:10px;color:#aaa;line-height:1.3;">${companion.bonus.text}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    companionArea.innerHTML = `
+      <div style="color:#888;font-size:10px;padding:4px;">Yardımcı: Tur 25'te seçilecek</div>
+    `;
+  }
+
+  // 3. Augmentler
+  const augmentsArea = document.getElementById("augmentsArea");
+  if (selectedAugments.length > 0) {
+    let html = `<div style="border-left:3px solid #FFD700;padding-left:8px;background:#1a1a1a;padding:6px;border-radius:4px;margin-top:8px;">
+      <div style="font-weight:bold;font-size:10px;color:#FFD700;margin-bottom:6px;">AUGMENTLER</div>`;
+    
+    selectedAugments.forEach(augId => {
+      // Augment'i bul
+      let aug = null;
+      for (let tier in augments) {
+        const found = augments[tier].find(a => a.id === augId);
+        if (found) {
+          aug = found;
+          break;
+        }
+      }
+      
+      if (aug) {
+        html += `
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;padding:4px;background:#0a0a0a;border-radius:3px;">
+            <div style="font-size:20px;">${aug.icon}</div>
+            <div style="flex:1;">
+              <div style="font-size:10px;font-weight:bold;color:#FFD700;">${aug.name}</div>
+              <div style="font-size:9px;color:#888;">${aug.desc}</div>
+            </div>
+          </div>
+        `;
+      }
+    });
+    
+    html += `</div>`;
+    augmentsArea.innerHTML = html;
+  } else {
+    augmentsArea.innerHTML = "";
+  }
 }
 
 // ==== INVENTORY ====
@@ -645,50 +700,106 @@ function renderBattle() {
 }
 
 function showCompanionSelect() {
+  // 3 rastgele yardımcı seç
+  const availableCompanions = [...companions];
+  const choices = [];
+  const rerollUsed = [false, false, false];
+  let selectedCompanion = null;
+  
+  for (let i = 0; i < 3; i++) {
+    const index = Math.floor(Math.random() * availableCompanions.length);
+    choices.push(availableCompanions[index]);
+    availableCompanions.splice(index, 1);
+  }
+
   const overlay = document.createElement("div");
   overlay.className = "shopOverlay";
   overlay.innerHTML = `
-    <div class="shopPanel">
+    <div class="shopPanel" style="max-width:800px;">
       <h2>🎖️ Yardımcı Seç</h2>
-      <p style="text-align:center;color:#aaa;font-size:14px;">Tur 25 Ödülü</p>
-      <div id="companionGrid"></div>
+      <p style="text-align:center;color:#aaa;font-size:14px;">Tur 25 Ödülü - Her kartta 1 yenileme hakkın var</p>
+      <div id="companionGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:20px 0;"></div>
+      <div style="text-align:center;">
+        <button id="confirmCompanionBtn" style="display:none;padding:14px 40px;font-size:16px;background:#4caf50;border:3px solid gold;">✅ Seçimi Onayla</button>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
 
   const grid = overlay.querySelector("#companionGrid");
+  const confirmBtn = overlay.querySelector("#confirmCompanionBtn");
 
-  companions.forEach(comp => {
-    const d = document.createElement("div");
-    d.className = "charCard";
-    d.innerHTML = `
-      <img src="${comp.img}">
-      <div><b>${comp.name}</b></div>
-      <div style="font-size:12px;margin-top:8px;">${comp.bonus.text}</div>
-    `;
-    d.onclick = () => {
-      companion = comp;
+  function renderCompanionCards() {
+    grid.innerHTML = "";
+    
+    choices.forEach((comp, i) => {
+      const d = document.createElement("div");
+      d.className = "charCard companionCard";
+      d.innerHTML = `
+        <img src="${comp.img}">
+        <div><b>${comp.name}</b></div>
+        <div style="font-size:12px;margin-top:8px;color:#aaa;">${comp.bonus.text}</div>
+        <button class="rerollCardBtn" data-index="${i}" ${rerollUsed[i] ? 'disabled' : ''}>
+          ${rerollUsed[i] ? '❌ Kullanıldı' : '🔄 Yenile'}
+        </button>
+      `;
       
-      if (comp.bonus.type === "dmg") player.dmg += comp.bonus.value;
-      if (comp.bonus.type === "armor") player.armor += comp.bonus.value;
-      if (comp.bonus.type === "crit") player.critChance += comp.bonus.value;
+      d.onclick = (e) => {
+        if (e.target.classList.contains('rerollCardBtn')) return;
+        document.querySelectorAll(".companionCard").forEach(x => x.classList.remove("selected"));
+        d.classList.add("selected");
+        selectedCompanion = comp;
+        confirmBtn.style.display = "block";
+      };
       
-      // Komutan Erwin - tüm statları %10 artır
-      if (comp.bonus.type === "strategy") {
-        player.dmg = Math.floor(player.dmg * 1.1);
-        player.armor = Math.floor(player.armor * 1.1);
-        player.mr = Math.floor(player.mr * 1.1);
-        player.maxHp = Math.floor(player.maxHp * 1.1);
-        player.hp = Math.floor(player.hp * 1.1);
-      }
-      
-      addLog(`🎖️ ${comp.name} ekibe katıldı!`);
-      overlay.remove();
-      updateUI();
-      startBattle();
-    };
-    grid.appendChild(d);
-  });
+      grid.appendChild(d);
+    });
+
+    // Reroll butonları
+    document.querySelectorAll('.rerollCardBtn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const index = parseInt(btn.dataset.index);
+        if (rerollUsed[index]) return;
+        
+        rerollUsed[index] = true;
+        
+        // Yeni rastgele yardımcı seç
+        const remaining = companions.filter(c => !choices.includes(c));
+        if (remaining.length > 0) {
+          choices[index] = remaining[Math.floor(Math.random() * remaining.length)];
+        }
+        
+        renderCompanionCards();
+      };
+    });
+  }
+
+  confirmBtn.onclick = () => {
+    if (!selectedCompanion) return;
+    
+    companion = selectedCompanion;
+    
+    if (companion.bonus.type === "dmg") player.dmg += companion.bonus.value;
+    if (companion.bonus.type === "armor") player.armor += companion.bonus.value;
+    if (companion.bonus.type === "crit") player.critChance += companion.bonus.value;
+    
+    if (companion.bonus.type === "strategy") {
+      player.dmg = Math.floor(player.dmg * 1.1);
+      player.armor = Math.floor(player.armor * 1.1);
+      player.mr = Math.floor(player.mr * 1.1);
+      player.maxHp = Math.floor(player.maxHp * 1.1);
+      player.hp = Math.floor(player.hp * 1.1);
+    }
+    
+    addLog(`🎖️ ${companion.name} ekibe katıldı!`);
+    overlay.remove();
+    updateUI();
+    renderFeatures(); // Yeni render fonksiyonu
+    continueAfterAugment(); // Savaşa devam
+  };
+
+  renderCompanionCards();
 }
 
 // ==== COMBAT ====
@@ -1079,6 +1190,7 @@ function showAugmentSelection() {
       overlay.remove();
       updateUI();
       renderInventory();
+      renderFeatures(); // Augmentleri göster
       checkAchievements();
       
       // Augment seçildikten sonra savaşa devam
