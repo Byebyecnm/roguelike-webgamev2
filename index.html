@@ -49,21 +49,25 @@
     <div style="color:#4caf50;font-weight:bold;" id="turnText">Tur: 1/50</div>
 
     <div class="leftBox">
-      <h3>Pasif</h3>
-      <div id="passiveArea"></div>
-    </div>
-
-    <div class="leftBox">
-      <h3>Yardımcı</h3>
-      <div id="companionArea" style="text-align:center;color:#888;font-size:11px;">
-        Tur 25'te açılır
-      </div>
-    </div>
-
-    <div class="leftBox">
       <h3>Eşyalar</h3>
       <div class="itemGrid" id="itemGrid"></div>
       <button class="shopBtn" id="openShopBtn">🛒 Dükkan</button>
+    </div>
+
+    <div class="leftBox">
+      <h3>Özellikler</h3>
+      <div id="featuresArea" style="font-size:11px;max-height:250px;overflow-y:auto;">
+        <!-- Karakter Pasifi -->
+        <div id="passiveArea" style="margin-bottom:8px;"></div>
+        
+        <!-- Yardımcı -->
+        <div id="companionArea" style="margin-bottom:8px;">
+          <div style="color:#888;font-size:10px;">Yardımcı: Tur 25'te seçilecek</div>
+        </div>
+
+        <!-- Augmentler -->
+        <div id="augmentsArea"></div>
+      </div>
     </div>
   </div>
 
