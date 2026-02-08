@@ -946,3 +946,26 @@ button:active {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Mobilde eşya bölümü daha kullanışlı */
+@media (max-width: 768px) {
+  .leftBox:has(#itemGrid) {
+    max-height: 200px; /* Sabit yükseklik */
+    overflow-y: auto; /* Scroll */
+  }
+  
+  .itemGrid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .leftBox:has(#itemGrid) {
+    max-height: 180px;
+  }
+  
+  .itemGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
