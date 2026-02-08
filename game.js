@@ -1084,50 +1084,55 @@ function endGame(victory) {
       <h2>${victory ? "🎉 ZAFER!" : "💀 YENİLDİN"}</h2>
       <p>Tamamlanan Tur: ${currentTurn - 1}/${maxTurns}</p>
       <p>Toplanan Altın: ${gold}g</p>
-      <button id="restartBtn" style="padding:12px 24px;font-size:16px;">🔄 Yeniden Başla</button>
+      <button id="restartBtn" style="padding:12px 24px;font-size:16px;background:#6b3fa0;color:white;border:2px solid gold;border-radius:8px;cursor:pointer;">🔄 Yeniden Başla</button>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  // Yeniden başla butonu
-  document.getElementById("restartBtn").onclick = () => {
-    // State'i sıfırla
-    player = null;
-    enemies = [];
-    selectedEnemyIndex = null;
-    gold = 100;
-    inventory = {};
-    passiveItems = [];
-    purchasedItems = [];
-    selectedAugments = [];
-    currentTurn = 1;
-    companion = null;
-    isDefending = false;
-    leviCritTriggered = false;
-    gojoHitsRemaining = 3;
-    berserkerTurnsLeft = 0;
-    narutoRageActive = false;
-    rerollUsed = [false, false, false];
-    currentChoices = [];
-    selectedIndex = null;
+  // Yeniden başla butonu - setTimeout ile event listener ekleme
+  setTimeout(() => {
+    const btn = document.getElementById("restartBtn");
+    if (btn) {
+      btn.addEventListener("click", function() {
+        // State'i sıfırla
+        player = null;
+        enemies = [];
+        selectedEnemyIndex = null;
+        gold = 100;
+        inventory = {};
+        passiveItems = [];
+        purchasedItems = [];
+        selectedAugments = [];
+        currentTurn = 1;
+        companion = null;
+        isDefending = false;
+        leviCritTriggered = false;
+        gojoHitsRemaining = 3;
+        berserkerTurnsLeft = 0;
+        narutoRageActive = false;
+        rerollUsed = [false, false, false];
+        currentChoices = [];
+        selectedIndex = null;
 
-    // Başarımları sıfırla
-    achievements.forEach(ach => {
-      ach.unlocked = false;
-      if (ach.critCount !== undefined) ach.critCount = 0;
-      if (ach.skillCount !== undefined) ach.skillCount = 0;
-    });
+        // Başarımları sıfırla
+        achievements.forEach(ach => {
+          ach.unlocked = false;
+          if (ach.critCount !== undefined) ach.critCount = 0;
+          if (ach.skillCount !== undefined) ach.skillCount = 0;
+        });
 
-    // Overlay'i kaldır
-    overlay.remove();
+        // Overlay'i kaldır
+        overlay.remove();
 
-    // Karakter seçim ekranına dön
-    gameScreen.classList.remove("active");
-    selectScreen.classList.add("active");
-    
-    // Yeni karakterler roll et
-    rollAll();
-  };
+        // Karakter seçim ekranına dön
+        gameScreen.classList.remove("active");
+        selectScreen.classList.add("active");
+        
+        // Yeni karakterler roll et
+        rollAll();
+      });
+    }
+  }, 100);
 }
 
 // ===== TOOLTIP + LOG =====
