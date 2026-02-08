@@ -150,19 +150,24 @@ const shopItems = [
     } },
 ];
 
-// Düşman tipleri (Daha erken çeşitlilik)
+// Düşman tipleri (Daha çeşitli ve güçlü)
 const enemyTypes = [
-  { name:"Goblin", hp:60, dmg:15, armor:10, mr:5, gold:25, img:"images/enemy.png" },
-  { name:"Kobold", hp:50, dmg:20, armor:8, mr:8, gold:22, img:"images/enemy.png" },
-  { name:"Ork", hp:90, dmg:25, armor:20, mr:10, gold:35, img:"images/enemy.png" },
-  { name:"Troll", hp:110, dmg:22, armor:25, mr:8, gold:38, img:"images/enemy.png" },
-  { name:"Şövalye", hp:120, dmg:30, armor:35, mr:15, gold:45, img:"images/enemy.png" },
-  { name:"Karanlık Büyücü", hp:80, dmg:40, armor:15, mr:40, gold:50, img:"images/enemy.png" },
-  { name:"Vampir", hp:100, dmg:35, armor:20, mr:30, gold:48, img:"images/enemy.png" },
-  { name:"Dev", hp:150, dmg:45, armor:30, mr:20, gold:60, img:"images/enemy.png" },
-  { name:"Gargoyle", hp:130, dmg:38, armor:35, mr:25, gold:55, img:"images/enemy.png" },
-  { name:"Ejderha", hp:200, dmg:55, armor:40, mr:30, gold:100, img:"images/enemy.png" },
-  { name:"Demon Lord", hp:180, dmg:50, armor:38, mr:35, gold:90, img:"images/enemy.png" },
+  { name:"Goblin", hp:80, dmg:18, armor:12, mr:8, gold:25, img:"images/enemy.png" },
+  { name:"Kobold", hp:70, dmg:22, armor:10, mr:10, gold:22, img:"images/enemy.png" },
+  { name:"Ork Savaşçısı", hp:110, dmg:28, armor:22, mr:12, gold:35, img:"images/enemy.png" },
+  { name:"Troll", hp:130, dmg:25, armor:28, mr:10, gold:38, img:"images/enemy.png" },
+  { name:"Kara Şövalye", hp:140, dmg:32, armor:38, mr:18, gold:45, img:"images/enemy.png" },
+  { name:"Büyücü", hp:90, dmg:42, armor:18, mr:45, gold:50, img:"images/enemy.png" },
+  { name:"Vampir Lord", hp:120, dmg:38, armor:24, mr:35, gold:48, img:"images/enemy.png" },
+  { name:"Golem", hp:180, dmg:30, armor:50, mr:15, gold:55, img:"images/enemy.png" },
+  { name:"Dev Örümcek", hp:100, dmg:45, armor:20, mr:22, gold:52, img:"images/enemy.png" },
+  { name:"Gargoyle", hp:150, dmg:40, armor:40, mr:28, gold:58, img:"images/enemy.png" },
+  { name:"Ateş Elemental", hp:110, dmg:50, armor:22, mr:40, gold:60, img:"images/enemy.png" },
+  { name:"Buz Devi", hp:200, dmg:48, armor:35, mr:25, gold:65, img:"images/enemy.png" },
+  { name:"Ejderha Yavrusu", hp:180, dmg:52, armor:38, mr:32, gold:70, img:"images/enemy.png" },
+  { name:"Demon", hp:160, dmg:55, armor:32, mr:38, gold:75, img:"images/enemy.png" },
+  { name:"Kızıl Ejderha", hp:250, dmg:60, armor:45, mr:35, gold:100, img:"images/enemy.png" },
+  { name:"Antik Lich", hp:200, dmg:65, armor:35, mr:50, gold:95, img:"images/enemy.png" },
 ];
 
 // AUGMENT SİSTEMİ
@@ -277,6 +282,10 @@ let leviCritTriggered = false;
 let gojoHitsRemaining = 3; // Gojo pasifi
 let berserkerTurnsLeft = 0; // Guts pasifi
 let narutoRageActive = false; // Naruto pasifi
+
+// Market sistemi
+let shopCost = 0; // İlk market bedava
+let lastFreeShopTurn = 0; // Son bedava market turu
 
 let rerollUsed = [false, false, false];
 let currentChoices = [];
@@ -414,6 +423,20 @@ function updateUI() {
    Zırh: ${player.armor} | Büyü Direnci: ${player.mr}`;
   document.getElementById("goldText").textContent = gold;
   document.getElementById("turnText").textContent = `Tur: ${currentTurn}/${maxTurns}`;
+  
+  // Dükkan butonu güncelle
+  const shopBtn = document.getElementById("openShopBtn");
+  let isFree = (currentTurn === 1) || (currentTurn - lastFreeShopTurn >= 5);
+  
+  if (isFree) {
+    shopBtn.style.borderColor = "#4caf50";
+    shopBtn.style.boxShadow = "0 2px 8px rgba(76, 175, 80, 0.6)";
+    shopBtn.title = "Bedava Dükkan!";
+  } else {
+    shopBtn.style.borderColor = "#FFD700";
+    shopBtn.style.boxShadow = "0 2px 8px rgba(194, 139, 75, 0.4)";
+    shopBtn.title = `Dükkan (35g) - ${5 - (currentTurn - lastFreeShopTurn)} tur sonra bedava`;
+  }
 }
 
 // ==== FEATURES (Pasif + Yardımcı + Augmentler) ====
@@ -547,7 +570,50 @@ function renderInventory() {
 
 // ==== SHOP ====
 
-document.getElementById("openShopBtn").onclick = openShop;
+document.getElementById("openShopBtn").onclick = () => {
+  // Her 5 turda bir bedava
+  let isFree = (currentTurn === 1) || (currentTurn - lastFreeShopTurn >= 5);
+  
+  if (isFree) {
+    lastFreeShopTurn = currentTurn;
+    shopCost = 0;
+    openShop();
+  } else {
+    // 35 altın maliyet
+    if (gold >= 35) {
+      // Onay penceresi
+      const confirmDiv = document.createElement("div");
+      confirmDiv.className = "shopOverlay";
+      confirmDiv.innerHTML = `
+        <div class="shopPanel" style="text-align:center;max-width:400px;">
+          <h3>🛒 Dükkanı Aç</h3>
+          <p>Dükkanı açmak için <span style="color:gold;font-weight:bold;">35 altın</span> harcaman gerekiyor.</p>
+          <p style="font-size:12px;color:#888;">
+            ${5 - (currentTurn - lastFreeShopTurn)} tur sonra bedava olacak!
+          </p>
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;">
+            <button id="confirmShopBtn" style="padding:10px 20px;background:#4caf50;">✅ Aç (35g)</button>
+            <button id="cancelShopBtn" style="padding:10px 20px;background:#f44336;">❌ İptal</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(confirmDiv);
+
+      document.getElementById("confirmShopBtn").onclick = () => {
+        gold -= 35;
+        updateUI();
+        confirmDiv.remove();
+        openShop();
+      };
+
+      document.getElementById("cancelShopBtn").onclick = () => {
+        confirmDiv.remove();
+      };
+    } else {
+      addLog("⚠️ Dükkan açmak için 35 altın gerekli!");
+    }
+  }
+};
 
 function openShop() {
   const overlay = document.createElement("div");
@@ -649,15 +715,17 @@ function startBattle() {
   enemies = [];
   
   for (let i = 0; i < enemyCount; i++) {
-    // Daha erken çeşitlilik
-    let enemyIndex = Math.min(Math.floor(currentTurn / 5), enemyTypes.length - 1);
+    // Daha çeşitli düşmanlar
+    let enemyIndex = Math.min(Math.floor(currentTurn / 3.5), enemyTypes.length - 1);
     let template = enemyTypes[enemyIndex];
     let enemy = JSON.parse(JSON.stringify(template));
     
-    let boost = Math.floor(currentTurn / 5);
-    enemy.hp += boost * 15;
-    enemy.dmg += boost * 5;
-    enemy.armor += boost * 3;
+    // Daha hızlı güçlenme
+    let boost = Math.floor(currentTurn / 3);
+    enemy.hp += boost * 20;
+    enemy.dmg += boost * 7;
+    enemy.armor += boost * 4;
+    enemy.mr += boost * 3;
     
     enemies.push(enemy);
   }
@@ -1113,6 +1181,10 @@ function endGame(victory) {
         rerollUsed = [false, false, false];
         currentChoices = [];
         selectedIndex = null;
+        
+        // Market sıfırla
+        shopCost = 0;
+        lastFreeShopTurn = 0;
 
         // Başarımları sıfırla
         achievements.forEach(ach => {
@@ -1269,14 +1341,15 @@ function continueAfterAugment() {
   enemies = [];
   
   for (let i = 0; i < enemyCount; i++) {
-    let enemyIndex = Math.min(Math.floor(currentTurn / 5), enemyTypes.length - 1);
+    let enemyIndex = Math.min(Math.floor(currentTurn / 3.5), enemyTypes.length - 1);
     let template = enemyTypes[enemyIndex];
     let enemy = JSON.parse(JSON.stringify(template));
     
-    let boost = Math.floor(currentTurn / 5);
-    enemy.hp += boost * 15;
-    enemy.dmg += boost * 5;
-    enemy.armor += boost * 3;
+    let boost = Math.floor(currentTurn / 3);
+    enemy.hp += boost * 20;
+    enemy.dmg += boost * 7;
+    enemy.armor += boost * 4;
+    enemy.mr += boost * 3;
     
     enemies.push(enemy);
   }
