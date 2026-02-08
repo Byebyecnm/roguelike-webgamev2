@@ -706,12 +706,53 @@ function buyItem(item, overlay) {
 
 // ==== BATTLE ====
 
+function applyTurnBonuses() {
+  if (currentTurn === 1) return;
+
+  if (companion && companion.bonus.type === "heal") {
+    player.hp = Math.min(player.maxHp, player.hp + companion.bonus.value);
+    addLog(`💚 ${companion.name} seni iyileştirdi! +${companion.bonus.value} HP`);
+  }
+
+  if (player.warmog) {
+    player.hp = Math.min(player.maxHp, player.hp + 10);
+    addLog(`❤️ Warmog's Armor! +10 HP`);
+  }
+
+  if (player.prismaticRegen > 0) {
+    player.hp = Math.min(player.maxHp, player.hp + player.prismaticRegen);
+    addLog(`💚 Ölümsüzlük! +${player.prismaticRegen} HP`);
+  }
+
+  if (player.gargoyl) {
+    player.mr += 2;
+    player.armor += 2;
+    addLog(`🗿 Gargoyl Taşzırhı! Zırh ve MR +2`);
+  }
+
+  if (player.shojin) {
+    player.mana = Math.min(player.maxMana, player.mana + 10);
+    addLog(`🔱 Shojin Mızrağı! Mana +10`);
+  }
+
+  if (player.titan) {
+    player.ad += 2;
+    player.ap += 2;
+    addLog(`⚡ Titanın Azmi! AD ve AP +2`);
+  }
+
+  updateUI();
+}
+
 function startBattle() {
   if (currentTurn > maxTurns) {
     addLog("🏆 TEBRİKLER! Tüm turları tamamladınız!");
     endGame(true);
     return;
   }
+
+  // ✅ BURAYI EKLE
+  applyTurnBonuses();
 
   // Augment seçimi (10, 20, 30, 40. turlar)
   if (currentTurn % 10 === 0 && currentTurn > 0 && currentTurn !== 50) {
@@ -947,17 +988,26 @@ document.getElementById("defendBtn").onclick = () => {
   nextTurn();
 };
 
+// Senin verdiğin kodun başına eklemeler
+
+// dealDamage fonksiyonu - TAMAMEN YENİDEN YAZILDI
 function dealDamage(attacker, defender, isMagic=false) {
-  let base = attacker.dmg;
+  // ✅ AD veya AP'ye göre base hasar
+  let base = isMagic ? attacker.ap : attacker.ad;
 
   // Guts Berserker modu
   if (attacker === player && berserkerTurnsLeft > 0) {
     base = Math.floor(base * 1.4);
   }
 
-  // Rock Lee companion - normal saldırı bonusu
+  // Rock Lee companion - AD bonusu
   if (attacker === player && !isMagic && companion && companion.bonus.type === "taijutsu") {
-    base = Math.floor(base * 1.3);
+    base += 25; // companion.bonus.value
+  }
+
+  // Himmel companion - AD bonusu
+  if (attacker === player && !isMagic && companion && companion.bonus.type === "ad") {
+    base += companion.bonus.value; // +35 AD
   }
 
   // Skill ise
@@ -969,15 +1019,20 @@ function dealDamage(attacker, defender, isMagic=false) {
       base = Math.floor(base * 1.2);
     }
 
-    // Rabadon's Deathcap
+    // Rabadon
     if (player.rabadon) {
       base = Math.floor(base * 1.15);
     }
 
-    // L companion - skill hasarı artışı
+    // L companion - AP bonusu
     if (companion && companion.bonus.type === "intelligence") {
-      base = Math.floor(base * 1.25);
+      base += 25;
     }
+  }
+
+  // Prismatik Tanrı Gücü
+  if (attacker === player && player.prismaticDamage) {
+    base = Math.floor(base * (1 + player.prismaticDamage));
   }
 
   // Eren pasifi
@@ -987,12 +1042,13 @@ function dealDamage(attacker, defender, isMagic=false) {
     base += rageBonus;
   }
 
-  // Naruto pasifi - HP %30 altında
+  // Naruto pasifi
   if (attacker === player && player.name === "Naruto") {
     let hpPercent = player.hp / player.maxHp;
     if (hpPercent <= 0.3 && !narutoRageActive) {
       narutoRageActive = true;
-      player.dmg = Math.floor(player.dmg * 1.3);
+      player.ad = Math.floor(player.ad * 1.3);
+      player.ap = Math.floor(player.ap * 1.3);
       player.armor = Math.floor(player.armor * 1.3);
       player.mr = Math.floor(player.mr * 1.3);
       addLog("🦊 Naruto'nun Kyuubi gücü uyanıyor! Tüm statlar %30 arttı!");
@@ -1005,7 +1061,13 @@ function dealDamage(attacker, defender, isMagic=false) {
   if (isCrit) {
     base = Math.floor(base * attacker.critMult);
     
-    // Levi pasifi
+    if (attacker === player) {
+      const critAch = achievements.find(a => a.id === "critical_master");
+      if (critAch && !critAch.unlocked) {
+        critAch.critCount++;
+      }
+    }
+    
     if (attacker === player && player.name === "Levi" && !leviCritTriggered) {
       leviCritTriggered = true;
       player.critChance += 10;
@@ -1013,7 +1075,6 @@ function dealDamage(attacker, defender, isMagic=false) {
       updateUI();
     }
 
-    // Light Yagami pasifi - kritik vurduğunda max HP'nin %5'i ekstra hasar
     if (attacker === player && player.name === "Light Yagami") {
       let deathNote = Math.floor(defender.hp * 0.05);
       base += deathNote;
@@ -1021,10 +1082,23 @@ function dealDamage(attacker, defender, isMagic=false) {
     }
   }
 
+  // Skill başarımı
+  if (attacker === player && isMagic) {
+    const skillAch = achievements.find(a => a.id === "skill_master");
+    if (skillAch && !skillAch.unlocked) {
+      skillAch.skillCount++;
+    }
+  }
+
   let defense = isMagic ? defender.mr : defender.armor;
   let finalDmg = Math.max(1, base - defense);
 
-  // Saitama'nın one punch pasifi
+  // Prismatik Kutsal Zırh
+  if (defender === player && player.prismaticDefense) {
+    finalDmg = Math.floor(finalDmg * (1 - player.prismaticDefense));
+  }
+
+  // Saitama one punch
   if (attacker === player && player.name === "Saitama" && !isMagic && currentTurn < 40) {
     if (Math.random() < 0.2) {
       finalDmg = defender.hp;
@@ -1032,7 +1106,14 @@ function dealDamage(attacker, defender, isMagic=false) {
     }
   }
 
-  defender.hp -= finalDmg;
+  // Çift saldırı
+  if (attacker === player && player.doubleStrike && !isMagic) {
+    defender.hp -= finalDmg;
+    addLog(`⚔️⚔️ Çift Saldırı! 2x${finalDmg} hasar!`);
+    finalDmg = finalDmg * 2;
+  } else {
+    defender.hp -= finalDmg;
+  }
 
   // Lifesteal
   if (attacker === player && player.lifesteal > 0) {
@@ -1041,19 +1122,19 @@ function dealDamage(attacker, defender, isMagic=false) {
     addLog(`💉 ${heal} can emildi!`);
   }
 
-  // Mikasa companion - %15 ihtimalle ekstra vuruş
+  // Mikasa companion
   if (attacker === player && companion && companion.bonus.type === "speed") {
-    if (Math.random() < 0.15) {
+    if (Math.random() < 0.25) {
       let extraDmg = Math.floor(base * 0.5);
       defender.hp -= extraDmg;
       addLog(`⚔️ Mikasa'nın hızı! Ekstra ${extraDmg} hasar!`);
     }
   }
 
-  // Guts berserker mod kontrolü
+  // Guts berserker
   if (attacker === player && player.name === "Guts" && berserkerTurnsLeft === 0) {
     if (Math.random() < 0.05) {
-      berserkerTurnsLeft = 3;
+      berserkerTurksLeft = 3;
       addLog("😡 Guts öfke moduna girdi! 3 tur boyunca hasar %40 arttı!");
     }
   }
@@ -1066,6 +1147,7 @@ function dealDamage(attacker, defender, isMagic=false) {
     addLog(`⚔️ ${finalDmg} hasar vurdun.`);
   }
 
+  updateUI();
   return finalDmg;
 }
 
@@ -1128,52 +1210,26 @@ function onEnemyDefeated(index) {
     selectedEnemyIndex = Math.max(0, enemies.length - 1);
   }
   
-  if (enemies.length === 0) {
-    currentTurn++;
-    updateUI();
-    startBattle();
-  } else {
-    renderBattle();
-    updateUI();
-  }
-}
-
-function nextTurn() {
-  // Heiter rejenerasyonu
-  if (companion && companion.bonus.type === "heal") {
-    player.hp = Math.min(player.maxHp, player.hp + companion.bonus.value);
-    addLog(`💚 ${companion.name} seni iyileştirdi! +${companion.bonus.value} HP`);
-  }
-
-  // Warmog rejenerasyonu
-  if (player.warmog) {
-    player.hp = Math.min(player.maxHp, player.hp + 10);
-    addLog(`❤️ Warmog's Armor! +10 HP rejenerasyon`);
-  }
-
-  if (player.gargoyl) {
-    player.mr = Math.min(player.mr, player.mr + 2)
-    player.armor = Math.min(player.mr, player.mr + 2)
-  }
-
-  if (player.shojin) {
-    player.mana = Math.min(player.maxMana, player.mana + 10)
-    addLog("Shojin Mananı 10 arttırdı!")
-  }
-
-  if (player.titan) {
-    player.ad = Math.min(player.ad, player.ad + 2)
-    player.ap = Math.min(player.ap, player.ap + 2)
-  }
-
-  // Guts berserker countdown
+if (enemies.length === 0) {
+  currentTurn++;
+  
+  // ✅ Guts berserker countdown buraya taşı
   if (berserkerTurnsLeft > 0) {
     berserkerTurnsLeft--;
     if (berserkerTurnsLeft === 0) {
       addLog("😌 Berserker modu sona erdi.");
     }
   }
+  
+  updateUI();
+  startBattle();
+} else {
+    renderBattle();
+    updateUI();
+  }
+}
 
+function nextTurn() {
   renderBattle();
   updateUI();
 }
@@ -1196,6 +1252,10 @@ function endGame(victory) {
     const btn = document.getElementById("restartBtn");
     if (btn) {
       btn.addEventListener("click", function() {
+        const logPanel = document.getElementById("logPanel");
+        logPanel.innerHTML = "";
+  
+        overlay.remove();
         // State'i sıfırla
         player = null;
         enemies = [];
