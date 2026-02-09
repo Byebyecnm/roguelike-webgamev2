@@ -618,6 +618,7 @@ button:active {
     order: 1;
     max-height: none;
     padding: 10px;
+    overflow-y: visible; /* Scroll kaldır */
   }
 
   /* Mobilde özel düzenleme */
@@ -625,6 +626,18 @@ button:active {
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  /* Eşyalar bölümü için özel yükseklik */
+  .leftBox:has(#itemGrid) {
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  /* Özellikler bölümü için özel yükseklik */
+  .leftBox:has(#featuresArea) {
+    max-height: 180px;
+    overflow-y: auto;
   }
 
   .mobileHeader {
@@ -685,11 +698,23 @@ button:active {
     margin: 2px;
     padding: 8px;
     border-width: 2px;
-    min-height: 350px;
+    min-height: 300px;
   }
 
   .leftPanel {
     padding: 8px;
+  }
+
+  /* Eşyalar için daha fazla alan */
+  .leftBox:has(#itemGrid) {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  /* Özellikler için kompakt alan */
+  .leftBox:has(#featuresArea) {
+    max-height: 150px;
+    overflow-y: auto;
   }
 
   .mobileHeader {
@@ -814,6 +839,17 @@ button:active {
   #charName {
     font-size: 13px;
   }
+
+  /* Mobilde eşyalar ve özellikler için alan */
+  .leftBox:has(#itemGrid) {
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  .leftBox:has(#featuresArea) {
+    max-height: 140px;
+    overflow-y: auto;
+  }
   
   .battleButtons {
     gap: 6px;
@@ -897,25 +933,6 @@ button:active {
     padding: 16px;
     font-size: 15px;
   }
-  
-  .itemSlot {
-    border-width: 1px;
-  }
-  
-  .itemSlot img {
-    max-width: 75%;
-    max-height: 75%;
-  }
-  
-  .stackCount {
-    font-size: 9px;
-    padding: 1px 3px;
-  }
-  
-  .passiveBadge {
-    font-size: 8px;
-    padding: 1px 3px;
-  }
 
   #companionGrid {
     grid-template-columns: 1fr;
@@ -944,28 +961,5 @@ button:active {
   
   .itemGrid {
     grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Mobilde eşya bölümü daha kullanışlı */
-@media (max-width: 768px) {
-  .leftBox:has(#itemGrid) {
-    max-height: 200px; /* Sabit yükseklik */
-    overflow-y: auto; /* Scroll */
-  }
-  
-  .itemGrid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 2px;
-  }
-}
-
-@media (max-width: 480px) {
-  .leftBox:has(#itemGrid) {
-    max-height: 180px;
-  }
-  
-  .itemGrid {
-    grid-template-columns: repeat(5, 1fr);
   }
 }
