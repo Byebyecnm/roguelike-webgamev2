@@ -2,13 +2,13 @@
 
 const characters = [
   { name:"Frieren", img:"images/characters/frieren.png",
-    hp:80, mana:160, ad:20, ap:65, armor:25, mr:45,
+    hp:85, mana:200, ad:20, ap:65, armor:30, mr:45,
     critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.7, skillCost:20,
     passive:{ icon:"images/passives/frierenPassive.png", text:"Büyü hasarı %20 artar." }
   },
   { name:"Fern", img:"images/characters/fern.png",
-    hp:70, mana:130, ad:28, ap:55, armor:25, mr:35,
+    hp:75, mana:150, ad:20, ap:55, armor:30, mr:35,
     critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.6, skillCost:25,
     passive:{ icon:"images/passives/fernPassive.png", text:"Mana harcaması %20 azalır." }
@@ -20,16 +20,16 @@ const characters = [
     passive:{ icon:"images/passives/leviPassive.png", text:"İlk kritik vurduğunda kritik şansı %10 artar." }
   },
   { name:"Eren", img:"images/characters/eren.png",
-    hp:125, mana:25, ad:68, ap:25, armor:50, mr:25,
+    hp:115, mana:25, ad:66, ap:25, armor:40, mr:30,
     critChance: 0, critMult: 2.0, lifesteal: 0,
     skillMult:1.4, skillCost:15,
     passive:{ icon:"images/passives/erenPassive.png", text:"Can azaldıkça hasar artar." }
   },
   { name:"Light Yagami", img:"images/characters/light.png",
-    hp:50, mana:140, ad:20, ap:55, armor:15, mr:45,
-    critChance: 0, critMult: 2.5, lifesteal: 0,
-    skillMult:2.0, skillCost:40,
-    passive:{ icon:"images/passives/lightPassive.png", text:"Kritik vurduğunda düşmanın maksimum canının %5'i kadar ekstra hasar verir." }
+    hp:95, mana:145, ad:20, ap:55, armor:35, mr:40,
+    critChance: 15, critMult: 2.5, lifesteal: 0,
+    skillMult:2.0, skillCost:35,
+    passive:{ icon:"images/passives/lightPassive.png", text:"Skill ve normal saldırıları kritik vurabilir. Kritik vurduğunda düşmanın maksimum canının %5'i kadar ekstra hasar verir." }
   },
   { name:"Gojo Satoru", img:"images/characters/gojo.png",
     hp:80, mana:100, ad:40, ap:60, armor:30, mr:50,
@@ -85,12 +85,12 @@ const companions = [
 ];
 
 const shopItems = [
-  { id:"hp_pot", name:"Can İksiri", img:"images/items/iksir.png", price:25, usable:true, stackable:true,
-    desc:"30 HP restore eder.",
-    use:()=>{ player.hp = Math.min(player.maxHp, player.hp + 30); } },
-  { id:"mana_pot", name:"Mana İksiri", img:"images/items/manapot.png", price:25, usable:true, stackable:true,
-    desc:"30 Mana restore eder.",
-    use:()=>{ player.mana = Math.min(player.maxMana, player.mana + 30); } },
+  { id:"hp_pot", name:"Can İksiri", img:"images/items/iksir.png", price:20, usable:true, stackable:true,
+    desc:"35 HP restore eder.",
+    use:()=>{ player.hp = Math.min(player.maxHp, player.hp + 35); } },
+  { id:"mana_pot", name:"Mana İksiri", img:"images/items/manapot.png", price:20, usable:true, stackable:true,
+    desc:"40 Mana restore eder.",
+    use:()=>{ player.mana = Math.min(player.maxMana, player.mana + 40); } },
   { id:"staff", name:"Luden", img:"images/items/luden.png", price:175, usable:false,
     desc:"Yetenek Gücü +40 verir.",
     passive:()=>{ player.ap += 40; } },
@@ -167,22 +167,31 @@ const shopItems = [
 
 // Düşman tipleri (Daha çeşitli ve güçlü)
 const enemyTypes = [
-  { name:"Goblin", hp:80, dmg:18, armor:12, mr:8, gold:25, img:"images/enemy.png" },
-  { name:"Kobold", hp:70, dmg:22, armor:10, mr:10, gold:30, img:"images/enemy.png" },
-  { name:"Ork Savaşçısı", hp:110, dmg:28, armor:22, mr:12, gold:35, img:"images/enemy.png" },
-  { name:"Troll", hp:130, dmg:25, armor:28, mr:10, gold:38, img:"images/enemy.png" },
-  { name:"Kara Şövalye", hp:140, dmg:32, armor:38, mr:18, gold:45, img:"images/enemy.png" },
-  { name:"Büyücü", hp:90, dmg:42, armor:18, mr:45, gold:50, img:"images/enemy.png" },
-  { name:"Vampir Lord", hp:120, dmg:38, armor:24, mr:35, gold:60, img:"images/enemy.png" },
-  { name:"Golem", hp:180, dmg:30, armor:50, mr:15, gold:55, img:"images/enemy.png" },
-  { name:"Dev Örümcek", hp:100, dmg:45, armor:20, mr:22, gold:65, img:"images/enemy.png" },
-  { name:"Gargoyle", hp:150, dmg:40, armor:40, mr:28, gold:58, img:"images/enemy.png" },
-  { name:"Ateş Elemental", hp:110, dmg:50, armor:22, mr:40, gold:70, img:"images/enemy.png" },
-  { name:"Buz Devi", hp:200, dmg:48, armor:35, mr:25, gold:65, img:"images/enemy.png" },
-  { name:"Ejderha Yavrusu", hp:180, dmg:52, armor:38, mr:32, gold:75, img:"images/enemy.png" },
-  { name:"Demon", hp:160, dmg:55, armor:32, mr:38, gold:75, img:"images/enemy.png" },
-  { name:"Kızıl Ejderha", hp:250, dmg:60, armor:45, mr:35, gold:100, img:"images/enemy.png" },
-  { name:"Antik Lich", hp:200, dmg:65, armor:35, mr:50, gold:95, img:"images/enemy.png" },
+  // Fiziksel düşmanlar (AD)
+  { name:"Goblin", hp:80, ad:20, ap:0, armor:12, mr:8, gold:25, img:"images/enemies/goblin.png", type:"physical" },
+  { name:"Kobold", hp:70, ad:32, ap:0, armor:10, mr:10, gold:30, img:"images/enemies/kobold.png", type:"physical" },
+  { name:"Ork Savaşçısı", hp:110, ad:48, ap:0, armor:22, mr:12, gold:35, img:"images/enemies/orkfighter.png", type:"physical" },
+  { name:"Troll", hp:130, ad:64, ap:0, armor:28, mr:10, gold:38, img:"images/enemies/troll.png", type:"physical" },
+  { name:"Kara Şövalye", hp:160, ad:70, ap:0, armor:38, mr:18, gold:45, img:"images/enemies/igris.png", type:"physical" },
+  
+  // Büyücü düşmanlar (AP)
+  { name:"Büyücü", hp:90, ad:0, ap:52, armor:18, mr:45, gold:50, img:"images/enemies/wizard.png", type:"magic" },
+  { name:"Ateş Elemental", hp:110, ad:0, ap:62, armor:22, mr:40, gold:70, img:"images/enemies/ates.png", type:"magic" },
+  { name:"Antik Lich", hp:200, ad:0, ap:70, armor:35, mr:50, gold:95, img:"images/enemies/lich.png", type:"magic" },
+  
+  // Hibrit düşmanlar (AD + AP)
+  { name:"Vampir Lord", hp:120, ad:55, ap:55, armor:24, mr:35, gold:60, img:"images/enemies/vampir.png", type:"hybrid" },
+  { name:"Demon", hp:160, ad:75, ap:75, armor:32, mr:38, gold:75, img:"images/enemies/demon.png", type:"hybrid" },
+  
+  // Tank düşmanlar
+  { name:"Golem", hp:360, ad:30, ap:0, armor:50, mr:15, gold:55, img:"images/enemies/golem.png", type:"physical" },
+  { name:"Gargoyle", hp:225, ad:50, ap:50, armor:40, mr:28, gold:58, img:"images/enemies/gargoyle.png", type:"hybrid" },
+  
+  // Diğer düşmanlar
+  { name:"Dev Örümcek", hp:200, ad:42, ap:25, armor:20, mr:22, gold:70, img:"images/enemies/spider.png", type:"hybrid" },
+  { name:"Buz Devi", hp:200, ad:38, ap:49, armor:35, mr:25, gold:70, img:"images/enemies/icegolem.png", type:"hybrid" },
+  { name:"Ejderha Yavrusu", hp:250, ad:80, ap:20, armor:38, mr:32, gold:80, img:"images/enemies/babyejder.png", type:"hybrid" },
+  { name:"Kızıl Ejderha", hp:300, ad:80, ap:80, armor:45, mr:45, gold:130, img:"images/enemies/dracarys.png", type:"hybrid" },
 ];
 
 // AUGMENT SİSTEMİ
@@ -315,13 +324,6 @@ const gameScreen = document.getElementById("gameScreen");
 const cardRow = document.getElementById("cardRow");
 const confirmBtn = document.getElementById("confirmBtn");
 
-// ==== START ====
-
-document.getElementById("startBtn").onclick = () => {
-  loginScreen.classList.remove("active");
-  selectScreen.classList.add("active");
-  rollAll();
-};
 
 // ==== CHARACTER SELECT ====
 
@@ -395,10 +397,12 @@ confirmBtn.onclick = () => {
 // ==== GAME START ====
 
 function startGame(char) {
+  resetGameStats();
   player = JSON.parse(JSON.stringify(char));
   player.maxHp = player.hp;
   player.maxMana = player.mana;
-  player.baseDmg = player.dmg;
+  player.baseAd = player.ad;
+  player.baseAp = player.ap;
   player.lifesteal = 0;
   player.warmog = false;
   player.gargoyl = false;
@@ -406,6 +410,15 @@ function startGame(char) {
   player.titan = false;
   player.rabadon = false;
   player.thornmail = 0;
+
+  // ✅ YENİ: AP karakterler için pasif AD bonusu
+  // AP karakterler: Frieren, Fern, Light, Gojo
+  if (player.ap > player.ad) {
+    // AP karakterler, AP'lerinin %30'u kadar AD bonusu alır
+    player.ad += Math.floor(player.ap * 0.3);
+    addLog(`✨ Büyücü karakteri! AP'den bonus AD: +${Math.floor(player.baseAp * 0.3)}`);
+  }
+
   
   // Prismatik augment özellikleri
   player.prismaticRegen = 0;
@@ -683,6 +696,9 @@ function buyItem(item, overlay) {
 
   gold -= item.price;
 
+  // ✅ ITEM ALIMI TAKIBI EKLE
+  trackItemBought();
+
   if (item.usable) {
     if (!inventory[item.id]) {
       inventory[item.id] = { item: item, count: 1 };
@@ -814,7 +830,8 @@ function renderBattle() {
       <img src="${enemy.img}">
       <div class="enemyStats">
         HP: ${enemy.hp}<br>
-        Hasar: ${enemy.dmg}
+        AD: ${enemy.ad}
+        AP: ${enemy.ap}
       </div>
     `;
     
@@ -828,7 +845,6 @@ function renderBattle() {
 }
 
 function showCompanionSelect() {
-  // 3 rastgele yardımcı seç
   const availableCompanions = [...companions];
   const choices = [];
   const rerollUsed = [false, false, false];
@@ -883,7 +899,6 @@ function showCompanionSelect() {
       grid.appendChild(d);
     });
 
-    // Reroll butonları
     document.querySelectorAll('.rerollCardBtn').forEach(btn => {
       btn.onclick = (e) => {
         e.stopPropagation();
@@ -892,7 +907,6 @@ function showCompanionSelect() {
         
         rerollUsed[index] = true;
         
-        // Yeni rastgele yardımcı seç
         const remaining = companions.filter(c => !choices.includes(c));
         if (remaining.length > 0) {
           choices[index] = remaining[Math.floor(Math.random() * remaining.length)];
@@ -908,23 +922,26 @@ function showCompanionSelect() {
     
     companion = selectedCompanion;
     
-    if (companion.bonus.type === "dmg") player.dmg += companion.bonus.value;
-    if (companion.bonus.type === "armor") player.armor += companion.bonus.value;
-    if (companion.bonus.type === "crit") player.critChance += companion.bonus.value;
+    // ✅ SADECE CRIT BONUSU UYGULA (Diğerleri dealDamage'de)
+    if (companion.bonus.type === "crit") {
+      player.critChance += companion.bonus.value;
+    }
     
+    // ✅ STRATEGY BONUSU (Erwin)
     if (companion.bonus.type === "strategy") {
-      player.dmg = Math.floor(player.dmg * 1.1);
-      player.armor = Math.floor(player.armor * 1.1);
-      player.mr = Math.floor(player.mr * 1.1);
-      player.maxHp = Math.floor(player.maxHp * 1.1);
-      player.hp = Math.floor(player.hp * 1.1);
+      player.ad = Math.floor(player.ad * 1.2);
+      player.ap = Math.floor(player.ap * 1.2);
+      player.armor = Math.floor(player.armor * 1.2);
+      player.mr = Math.floor(player.mr * 1.2);
+      player.maxHp = Math.floor(player.maxHp * 1.2);
+      player.hp = Math.floor(player.hp * 1.2);
     }
     
     addLog(`🎖️ ${companion.name} ekibe katıldı!`);
     overlay.remove();
     updateUI();
-    renderFeatures(); // Yeni render fonksiyonu
-    continueAfterAugment(); // Savaşa devam
+    renderFeatures();
+    continueAfterAugment();
   };
 
   renderCompanionCards();
@@ -947,6 +964,7 @@ document.getElementById("attackBtn").onclick = () => {
   nextTurn();
 };
 
+// ✅ ÇÖZÜM 3: Düşük mana uyarısı + otomatik iksir önerisi
 document.getElementById("skillBtn").onclick = () => {
   if (enemies.length === 0) return;
   
@@ -956,18 +974,28 @@ document.getElementById("skillBtn").onclick = () => {
     cost = Math.floor(cost * 0.8);
   }
 
-  // L companion - skill maliyeti %15 azalır
   if (companion && companion.bonus.type === "intelligence") {
     cost = Math.floor(cost * 0.80);
   }
 
+  if (player.prismaticMana > 0) {
+    cost = Math.floor(cost * (1 - player.prismaticMana));
+  }
+
+  // ✅ MANA KONTROLÜ VE UYARI
   if (player.mana < cost) {
-    addLog("⚠️ Yeterli mana yok!");
+    // Mana iksiri var mı kontrol et
+    if (inventory["mana_pot"] && inventory["mana_pot"].count > 0) {
+      addLog("⚠️ Yeterli mana yok! Mana İksiri kullanmayı dene.");
+    } else {
+      addLog("⚠️ Yeterli mana yok! Dükkan'dan Mana İksiri al.");
+    }
     return;
   }
 
   isDefending = false;
   player.mana -= cost;
+  trackSkillUse();
 
   dealDamage(player, enemies[selectedEnemyIndex], true);
 
@@ -990,59 +1018,49 @@ document.getElementById("defendBtn").onclick = () => {
 
 // Senin verdiğin kodun başına eklemeler
 
-// dealDamage fonksiyonu - TAMAMEN YENİDEN YAZILDI
+// ==== dealDamage FONKSİYONU - TAM DÜZELTİLMİŞ ====
+
 function dealDamage(attacker, defender, isMagic=false) {
-  // ✅ AD veya AP'ye göre base hasar
   let base = isMagic ? attacker.ap : attacker.ad;
 
-  // Guts Berserker modu
   if (attacker === player && berserkerTurnsLeft > 0) {
     base = Math.floor(base * 1.4);
   }
 
-  // Rock Lee companion - AD bonusu
   if (attacker === player && !isMagic && companion && companion.bonus.type === "taijutsu") {
-    base += 25; // companion.bonus.value
+    base += 25;
   }
 
-  // Himmel companion - AD bonusu
   if (attacker === player && !isMagic && companion && companion.bonus.type === "ad") {
-    base += companion.bonus.value; // +35 AD
+    base += companion.bonus.value;
   }
 
-  // Skill ise
   if (isMagic && attacker === player) {
     base = Math.floor(base * player.skillMult);
     
-    // Frieren pasifi
     if (player.name === "Frieren") {
       base = Math.floor(base * 1.2);
     }
 
-    // Rabadon
     if (player.rabadon) {
       base = Math.floor(base * 1.15);
     }
 
-    // L companion - AP bonusu
     if (companion && companion.bonus.type === "intelligence") {
       base += 25;
     }
   }
 
-  // Prismatik Tanrı Gücü
   if (attacker === player && player.prismaticDamage) {
     base = Math.floor(base * (1 + player.prismaticDamage));
   }
 
-  // Eren pasifi
   if (attacker === player && player.name === "Eren") {
     let hpPercent = player.hp / player.maxHp;
     let rageBonus = Math.floor((1 - hpPercent) * 40);
     base += rageBonus;
   }
 
-  // Naruto pasifi
   if (attacker === player && player.name === "Naruto") {
     let hpPercent = player.hp / player.maxHp;
     if (hpPercent <= 0.3 && !narutoRageActive) {
@@ -1056,12 +1074,20 @@ function dealDamage(attacker, defender, isMagic=false) {
     }
   }
 
-  // Kritik kontrolü
   let isCrit = Math.random() * 100 < attacker.critChance;
+
+  // ✅ LIGHT YAGAMI - AP KRİTİK PASSİFİ
+    if (attacker === player && player.name === "Light Yagami" && isMagic) {
+    // Light Yagami skill ile her zaman kritik vurabilir
+    if (Math.random() * 100 < player.critChance) {
+      isCrit = true;
+    }
+  }
   if (isCrit) {
     base = Math.floor(base * attacker.critMult);
     
     if (attacker === player) {
+      trackCritical();
       const critAch = achievements.find(a => a.id === "critical_master");
       if (critAch && !critAch.unlocked) {
         critAch.critCount++;
@@ -1075,6 +1101,7 @@ function dealDamage(attacker, defender, isMagic=false) {
       updateUI();
     }
 
+    // ✅ LIGHT YAGAMI - DEATH NOTE PASSİFİ (Hem skill hem normal için)
     if (attacker === player && player.name === "Light Yagami") {
       let deathNote = Math.floor(defender.hp * 0.05);
       base += deathNote;
@@ -1082,7 +1109,6 @@ function dealDamage(attacker, defender, isMagic=false) {
     }
   }
 
-  // Skill başarımı
   if (attacker === player && isMagic) {
     const skillAch = achievements.find(a => a.id === "skill_master");
     if (skillAch && !skillAch.unlocked) {
@@ -1093,12 +1119,14 @@ function dealDamage(attacker, defender, isMagic=false) {
   let defense = isMagic ? defender.mr : defender.armor;
   let finalDmg = Math.max(1, base - defense);
 
-  // Prismatik Kutsal Zırh
+  if (attacker === player) {
+    trackDamageDealt(finalDmg);
+  }
+
   if (defender === player && player.prismaticDefense) {
     finalDmg = Math.floor(finalDmg * (1 - player.prismaticDefense));
   }
 
-  // Saitama one punch
   if (attacker === player && player.name === "Saitama" && !isMagic && currentTurn < 40) {
     if (Math.random() < 0.2) {
       finalDmg = defender.hp;
@@ -1106,23 +1134,21 @@ function dealDamage(attacker, defender, isMagic=false) {
     }
   }
 
-  // Çift saldırı
+  // ✅ SADECE BİR KEZ HASAR VER
   if (attacker === player && player.doubleStrike && !isMagic) {
     defender.hp -= finalDmg;
     addLog(`⚔️⚔️ Çift Saldırı! 2x${finalDmg} hasar!`);
-    finalDmg = finalDmg * 2;
+    finalDmg = finalDmg * 2; // Lifesteal için
   } else {
-    defender.hp -= finalDmg;
+    defender.hp -= finalDmg; // ✅ TEK SEFERLIK
   }
 
-  // Lifesteal
   if (attacker === player && player.lifesteal > 0) {
     let heal = Math.floor(finalDmg * player.lifesteal);
     player.hp = Math.min(player.maxHp, player.hp + heal);
     addLog(`💉 ${heal} can emildi!`);
   }
 
-  // Mikasa companion
   if (attacker === player && companion && companion.bonus.type === "speed") {
     if (Math.random() < 0.25) {
       let extraDmg = Math.floor(base * 0.5);
@@ -1131,10 +1157,9 @@ function dealDamage(attacker, defender, isMagic=false) {
     }
   }
 
-  // Guts berserker
   if (attacker === player && player.name === "Guts" && berserkerTurnsLeft === 0) {
     if (Math.random() < 0.05) {
-      berserkerTurksLeft = 3;
+      berserkerTurnsLeft = 3; // ✅ DOĞRU DEĞİŞKEN ADI
       addLog("😡 Guts öfke moduna girdi! 3 tur boyunca hasar %40 arttı!");
     }
   }
@@ -1153,35 +1178,73 @@ function dealDamage(attacker, defender, isMagic=false) {
 
 function enemyTurn() {
   enemies.forEach(enemy => {
-    let base = enemy.dmg;
-    let finalDmg = Math.max(1, base - player.armor);
-
-    if (isDefending) {
-      finalDmg = Math.floor(finalDmg / 2);
+    let totalDmg = 0;
+    
+    // ✅ FİZİKSEL HASAR (AD)
+    if (enemy.ad > 0) {
+      let physicalDmg = Math.max(1, enemy.ad - player.armor);
+      totalDmg += physicalDmg;
+      addLog(`⚔️ ${enemy.name} fiziksel hasar: ${physicalDmg}`);
+    }
+    
+    // ✅ BÜYÜ HASARI (AP)
+    if (enemy.ap > 0) {
+      let magicDmg = Math.max(1, enemy.ap - player.mr);
+      totalDmg += magicDmg;
+      addLog(`🔮 ${enemy.name} büyü hasarı: ${magicDmg}`);
     }
 
-    // Gojo pasifi - ilk 3 vuruşta %50 hasar azaltma
+    // Savunma modu
+    if (isDefending) {
+      totalDmg = Math.floor(totalDmg / 2);
+    }
+
+    // Gojo pasifi
     if (player.name === "Gojo Satoru" && gojoHitsRemaining > 0) {
-      finalDmg = Math.floor(finalDmg / 2);
+      totalDmg = Math.floor(totalDmg / 2);
       gojoHitsRemaining--;
       addLog(`♾️ Gojo'nun Infinity savunması! Hasar yarıya indi. (${gojoHitsRemaining} kalan)`);
     }
 
-    player.hp -= finalDmg;
+    player.hp -= totalDmg;
+    trackDamageTaken(totalDmg);
 
-    // Thornmail - hasarı yansıtma
+    // ✅ THORNMAIL - TOPLAM HASARA GÖRE YANSIT
     if (player.thornmail > 0) {
-      let reflectDmg = Math.floor(finalDmg * player.thornmail);
+      let reflectDmg = Math.floor(totalDmg * player.thornmail);
       enemy.hp -= reflectDmg;
       addLog(`🌵 Thornmail ${reflectDmg} hasar yansıttı!`);
+      
+      if (enemy.hp <= 0) {
+        addLog(`💀 ${enemy.name} yansıyan hasardan öldü!`);
+      }
     }
     
     if (isDefending) {
-      addLog(`🛡️ ${enemy.name} saldırdı ama savunma sayesinde sadece ${finalDmg} hasar aldın!`);
+      addLog(`🛡️ Savunma sayesinde toplam ${totalDmg} hasar aldın!`);
     } else {
-      addLog(`👹 ${enemy.name} sana ${finalDmg} hasar verdi!`);
+      addLog(`👹 ${enemy.name} toplam ${totalDmg} hasar verdi!`);
     }
   });
+
+  // Thornmail'den ölen düşmanları temizle
+  enemies = enemies.filter(e => e.hp > 0);
+  
+  if (enemies.length === 0) {
+    currentTurn++;
+    trackTurnComplete();
+    
+    if (berserkerTurnsLeft > 0) {
+      berserkerTurnsLeft--;
+      if (berserkerTurnsLeft === 0) {
+        addLog("😌 Berserker modu sona erdi.");
+      }
+    }
+    
+    updateUI();
+    startBattle();
+    return;
+  }
 
   if (player.hp <= 0) {
     player.hp = 0;
@@ -1190,9 +1253,14 @@ function enemyTurn() {
   }
 }
 
+
 function onEnemyDefeated(index) {
   const defeatedEnemy = enemies[index];
   gold += defeatedEnemy.gold;
+
+   //  ÖLDÜRME + GOLD TAKIBI 
+  trackKill();
+  trackGold(defeatedEnemy.gold);
   addLog(`🏆 ${defeatedEnemy.name} yenildi! +${defeatedEnemy.gold}g`);
   
   // Shinigami companion - düşman öldüğünde %20 HP ve Mana restore
@@ -1212,6 +1280,8 @@ function onEnemyDefeated(index) {
   
 if (enemies.length === 0) {
   currentTurn++;
+ // ✅ TUR TAMAMLANDI TAKIBI 
+  trackTurnComplete();
   
   // ✅ Guts berserker countdown buraya taşı
   if (berserkerTurnsLeft > 0) {
@@ -1233,8 +1303,12 @@ function nextTurn() {
   renderBattle();
   updateUI();
 }
-
 function endGame(victory) {
+  // ✅ ESKİ KODU SİL - YENİ FONKSİYON KULLAN
+  trackTurnComplete(); // Tur sayısını güncelle
+  showEndGameStats(victory); // Yeni istatistik ekranı
+}
+/*function endGame(victory) {
   const overlay = document.createElement("div");
   overlay.className = "shopOverlay";
   overlay.innerHTML = `
@@ -1300,7 +1374,7 @@ function endGame(victory) {
     }
   }, 100);
 }
-
+*/
 // ===== TOOLTIP + LOG =====
 
 const tooltip = document.getElementById("tooltip");
@@ -1409,6 +1483,8 @@ function showAugmentSelection() {
     d.onclick = () => {
       aug.effect();
       selectedAugments.push(aug.id);
+      // ✅ AUGMENT TAKIBI EKLE
+      trackAugment();
       addLog(`✨ ${aug.name} augmenti seçildi!`);
       overlay.remove();
       updateUI();
@@ -1507,3 +1583,601 @@ function renderAchievements() {
     area.appendChild(d);
   });
 }
+
+// ===== İSTATİSTİK + LİG SİSTEMİ =====
+
+// Lig tanımları
+const leagues = {
+  bronze: { name: "Bronz", color: "#CD7F32", lpNeeded: 100, icon: "🥉" },
+  silver: { name: "Gümüş", color: "#C0C0C0", lpNeeded: 150, icon: "🥈" },
+  gold: { name: "Altın", color: "#FFD700", lpNeeded: 200, icon: "🥇" },
+  prismatic: { name: "Prizmatik", color: "#FF1493", lpNeeded: 999, icon: "💎" }
+};
+
+const divisions = [4, 3, 2, 1]; // Bronz 4 → Bronz 1
+
+// Oyuncu profili
+let playerProfile = {
+  name: "",
+  league: "bronze",
+  division: 4,
+  lp: 0,
+  totalGames: 0,
+  wins: 0,
+  losses: 0,
+  totalGold: 0,
+  totalKills: 0,
+  bestTurn: 0,
+  totalDamageDealt: 0,
+  totalDamageTaken: 0,
+  criticalHits: 0,
+  skillsUsed: 0,
+  itemsBought: 0,
+  augmentsCollected: 0,
+  companionsUsed: []
+};
+
+// Oyun içi istatistikler (her oyun için sıfırlanır)
+let gameStats = {
+  damageDealt: 0,
+  damageTaken: 0,
+  kills: 0,
+  criticalHits: 0,
+  skillsUsed: 0,
+  itemsBought: 0,
+  augmentsCollected: 0,
+  goldEarned: 0,
+  turnsCompleted: 0
+};
+
+// LocalStorage'dan profil yükle
+function loadPlayerProfile() {
+  const saved = localStorage.getItem('roguelikeProfile');
+  if (saved) {
+    playerProfile = JSON.parse(saved);
+  }
+}
+
+// Profili kaydet
+function savePlayerProfile() {
+  localStorage.setItem('roguelikeProfile', JSON.stringify(playerProfile));
+}
+
+// Lider tablosunu yükle
+function loadLeaderboard() {
+  const saved = localStorage.getItem('roguelikeLeaderboard');
+  return saved ? JSON.parse(saved) : [];
+}
+
+// Lider tablosunu kaydet
+function saveLeaderboard(leaderboard) {
+  localStorage.setItem('roguelikeLeaderboard', JSON.stringify(leaderboard));
+}
+
+// Lider tablosuna oyuncuyu ekle
+function updateLeaderboard() {
+  let leaderboard = loadLeaderboard();
+  
+  // Mevcut oyuncuyu bul veya ekle
+  let playerIndex = leaderboard.findIndex(p => p.name === playerProfile.name);
+  
+  const entry = {
+    name: playerProfile.name,
+    league: playerProfile.league,
+    division: playerProfile.division,
+    lp: playerProfile.lp,
+    wins: playerProfile.wins,
+    totalGames: playerProfile.totalGames,
+    bestTurn: playerProfile.bestTurn,
+    totalKills: playerProfile.totalKills,
+    winRate: playerProfile.totalGames > 0 ? Math.floor((playerProfile.wins / playerProfile.totalGames) * 100) : 0
+  };
+  
+  if (playerIndex >= 0) {
+    leaderboard[playerIndex] = entry;
+  } else {
+    leaderboard.push(entry);
+  }
+  
+  // Sıralama: Lig → Division → LP → Winrate
+  leaderboard.sort((a, b) => {
+    const leagueOrder = { prismatic: 4, gold: 3, silver: 2, bronze: 1 };
+    if (leagueOrder[a.league] !== leagueOrder[b.league]) {
+      return leagueOrder[b.league] - leagueOrder[a.league];
+    }
+    if (a.division !== b.division) {
+      return a.division - b.division; // 1 > 4
+    }
+    if (a.lp !== b.lp) {
+      return b.lp - a.lp;
+    }
+    return b.winRate - a.winRate;
+  });
+  
+  // Top 100 oyuncuyu sakla
+  leaderboard = leaderboard.slice(0, 100);
+  
+  saveLeaderboard(leaderboard);
+  return leaderboard;
+}
+
+// Oyun başlangıcında istatistikleri sıfırla
+function resetGameStats() {
+  gameStats = {
+    damageDealt: 0,
+    damageTaken: 0,
+    kills: 0,
+    criticalHits: 0,
+    skillsUsed: 0,
+    itemsBought: 0,
+    augmentsCollected: 0,
+    goldEarned: 0,
+    turnsCompleted: 0
+  };
+}
+
+// LP kazanma/kaybetme
+function updateLP(victory) {
+  const lpChange = victory ? 30 : -20;
+  playerProfile.lp += lpChange;
+  
+  // Terfi kontrolü
+  const currentLeague = leagues[playerProfile.league];
+  if (playerProfile.lp >= currentLeague.lpNeeded) {
+    // Division atlama
+    if (playerProfile.division > 1) {
+      playerProfile.division--;
+      playerProfile.lp = 0;
+      addLog(`🎖️ Terfi! ${leagues[playerProfile.league].icon} ${leagues[playerProfile.league].name} ${playerProfile.division}`);
+    } else {
+      // Lig atlama
+      const leagueOrder = ["bronze", "silver", "gold", "prismatic"];
+      const currentIndex = leagueOrder.indexOf(playerProfile.league);
+      if (currentIndex < leagueOrder.length - 1) {
+        playerProfile.league = leagueOrder[currentIndex + 1];
+        playerProfile.division = 4;
+        playerProfile.lp = 0;
+        addLog(`🏆 LİG ATLAMA! ${leagues[playerProfile.league].icon} ${leagues[playerProfile.league].name} Ligine yükseldin!`);
+      } else {
+        // Prizmatik'te LP sadece artar
+        addLog(`💎 +${lpChange} LP! Prizmatik'te devam!`);
+      }
+    }
+  }
+  
+  // Düşme kontrolü
+  if (playerProfile.lp < 0 && !victory) {
+    // Division düşme
+    if (playerProfile.division < 4) {
+      playerProfile.division++;
+      playerProfile.lp = Math.floor(currentLeague.lpNeeded * 0.7);
+      addLog(`⬇️ Division düştü: ${leagues[playerProfile.league].icon} ${leagues[playerProfile.league].name} ${playerProfile.division}`);
+    } else {
+      // Lig düşme
+      const leagueOrder = ["bronze", "silver", "gold", "prismatic"];
+      const currentIndex = leagueOrder.indexOf(playerProfile.league);
+      if (currentIndex > 0) {
+        playerProfile.league = leagueOrder[currentIndex - 1];
+        playerProfile.division = 1;
+        playerProfile.lp = Math.floor(leagues[playerProfile.league].lpNeeded * 0.7);
+        addLog(`⬇️ Lig düştü: ${leagues[playerProfile.league].icon} ${leagues[playerProfile.league].name} ${playerProfile.division}`);
+      } else {
+        // Bronz 4'te LP 0'da kalır
+        playerProfile.lp = 0;
+      }
+    }
+  }
+  
+  savePlayerProfile();
+  updateLeaderboard();
+}
+
+// Oyun sonu istatistik raporu
+function showEndGameStats(victory) {
+  // Profil güncelle
+  playerProfile.totalGames++;
+  if (victory) {
+    playerProfile.wins++;
+  } else {
+    playerProfile.losses++;
+  }
+  
+  playerProfile.totalGold += gameStats.goldEarned;
+  playerProfile.totalKills += gameStats.kills;
+  playerProfile.totalDamageDealt += gameStats.damageDealt;
+  playerProfile.totalDamageTaken += gameStats.damageTaken;
+  playerProfile.criticalHits += gameStats.criticalHits;
+  playerProfile.skillsUsed += gameStats.skillsUsed;
+  playerProfile.itemsBought += gameStats.itemsBought;
+  playerProfile.augmentsCollected += gameStats.augmentsCollected;
+  
+  if (gameStats.turnsCompleted > playerProfile.bestTurn) {
+    playerProfile.bestTurn = gameStats.turnsCompleted;
+  }
+  
+  // Companion kaydet
+  if (companion && !playerProfile.companionsUsed.includes(companion.name)) {
+    playerProfile.companionsUsed.push(companion.name);
+  }
+  
+  // LP güncelle
+  updateLP(victory);
+  
+  savePlayerProfile();
+  const leaderboard = updateLeaderboard();
+  
+  // Oyuncunun sıralaması
+  const playerRank = leaderboard.findIndex(p => p.name === playerProfile.name) + 1;
+  
+  // İstatistik paneli
+  const overlay = document.createElement("div");
+  overlay.className = "shopOverlay";
+  overlay.style.zIndex = "10000";
+  
+  const winRate = playerProfile.totalGames > 0 ? ((playerProfile.wins / playerProfile.totalGames) * 100).toFixed(1) : 0;
+  const currentLeague = leagues[playerProfile.league];
+  
+  overlay.innerHTML = `
+    <div class="shopPanel" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+      <h2 style="text-align:center;margin-top:0;">${victory ? "🎉 ZAFER!" : "💀 YENİLDİN"}</h2>
+      
+      <!-- Lig Bilgisi -->
+      <div style="text-align:center;background:linear-gradient(135deg, ${currentLeague.color}22 0%, ${currentLeague.color}44 100%);border:2px solid ${currentLeague.color};border-radius:10px;padding:15px;margin-bottom:20px;">
+        <div style="font-size:48px;margin-bottom:10px;">${currentLeague.icon}</div>
+        <div style="font-size:24px;font-weight:bold;color:${currentLeague.color};">
+          ${currentLeague.name} ${playerProfile.division}
+        </div>
+        <div style="font-size:32px;font-weight:bold;color:${victory ? '#4caf50' : '#f44336'};margin:10px 0;">
+          ${victory ? '+30' : '-20'} LP
+        </div>
+        <div style="font-size:18px;color:#aaa;">
+          ${playerProfile.lp} / ${currentLeague.lpNeeded} LP
+        </div>
+        <div style="width:100%;height:10px;background:#333;border-radius:5px;margin-top:10px;overflow:hidden;">
+          <div style="width:${(playerProfile.lp / currentLeague.lpNeeded * 100)}%;height:100%;background:${currentLeague.color};transition:width 0.5s;"></div>
+        </div>
+      </div>
+      
+      <!-- Oyun İstatistikleri -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+        <div style="background:#1a1a1a;padding:12px;border-radius:8px;border:2px solid #6b3fa0;">
+          <div style="font-size:12px;color:#888;">Bu Oyun</div>
+          <div style="font-size:20px;font-weight:bold;">Tur ${gameStats.turnsCompleted}/${maxTurns}</div>
+        </div>
+        <div style="background:#1a1a1a;padding:12px;border-radius:8px;border:2px solid #FFD700;">
+          <div style="font-size:12px;color:#888;">Altın</div>
+          <div style="font-size:20px;font-weight:bold;color:gold;">${gameStats.goldEarned}g</div>
+        </div>
+        <div style="background:#1a1a1a;padding:12px;border-radius:8px;border:2px solid #f44336;">
+          <div style="font-size:12px;color:#888;">Öldürme</div>
+          <div style="font-size:20px;font-weight:bold;color:#f44336;">${gameStats.kills}</div>
+        </div>
+        <div style="background:#1a1a1a;padding:12px;border-radius:8px;border:2px solid #4caf50;">
+          <div style="font-size:12px;color:#888;">Verilen Hasar</div>
+          <div style="font-size:20px;font-weight:bold;color:#4caf50;">${gameStats.damageDealt}</div>
+        </div>
+        <div style="background:#1a1a1a;padding:12px;border-radius:8px;border:2px solid #ff9800;">
+          <div style="font-size:12px;color:#888;">Kritik Vuruş</div>
+          <div style="font-size:20px;font-weight:bold;color:#ff9800;">${gameStats.criticalHits}</div>
+        </div>
+        <div style="background:#1a1a1a;padding:12px;border-radius:8px;border:2px solid #9c27b0;">
+          <div style="font-size:12px;color:#888;">Skill Kullanımı</div>
+          <div style="font-size:20px;font-weight:bold;color:#9c27b0;">${gameStats.skillsUsed}</div>
+        </div>
+      </div>
+      
+      <!-- Genel İstatistikler -->
+      <div style="background:#1a1a1a;padding:15px;border-radius:10px;border:2px solid #6b3fa0;margin-bottom:20px;">
+        <h3 style="margin-top:0;color:#c28b4b;">📊 Genel İstatistikler</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+          <div>Toplam Oyun: <span style="color:#4caf50;font-weight:bold;">${playerProfile.totalGames}</span></div>
+          <div>Galibiyet: <span style="color:#4caf50;font-weight:bold;">${playerProfile.wins}</span></div>
+          <div>Mağlubiyet: <span style="color:#f44336;font-weight:bold;">${playerProfile.losses}</span></div>
+          <div>Kazanma Oranı: <span style="color:#FFD700;font-weight:bold;">${winRate}%</span></div>
+          <div>En İyi Tur: <span style="color:#9c27b0;font-weight:bold;">${playerProfile.bestTurn}</span></div>
+          <div>Toplam Öldürme: <span style="color:#f44336;font-weight:bold;">${playerProfile.totalKills}</span></div>
+          <div>Lider Sırası: <span style="color:#FFD700;font-weight:bold;">#${playerRank}</span></div>
+          <div>Toplam Altın: <span style="color:gold;font-weight:bold;">${playerProfile.totalGold}g</span></div>
+        </div>
+      </div>
+      
+      <!-- Butonlar -->
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button id="viewLeaderboardBtn" style="padding:12px 24px;font-size:16px;background:#FFD700;color:#111;border:2px solid #FFD700;border-radius:8px;cursor:pointer;font-weight:bold;">
+          🏆 Lider Tablosu
+        </button>
+        <button id="restartBtn" style="padding:12px 24px;font-size:16px;background:#6b3fa0;color:white;border:2px solid gold;border-radius:8px;cursor:pointer;">
+          🔄 Yeniden Başla
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+  
+  // Lider tablosu butonu
+  document.getElementById("viewLeaderboardBtn").onclick = () => {
+    overlay.remove();
+    showLeaderboard();
+  };
+  
+  // Restart butonu
+  document.getElementById("restartBtn").onclick = () => {
+    overlay.remove();
+    restartGame();
+  };
+}
+
+// Lider tablosu göster
+function showLeaderboard() {
+  const leaderboard = loadLeaderboard();
+  
+  const overlay = document.createElement("div");
+  overlay.className = "shopOverlay";
+  overlay.style.zIndex = "10000";
+  
+  let html = `
+    <div class="shopPanel" style="max-width:800px;max-height:90vh;overflow-y:auto;">
+      <h2 style="text-align:center;margin-top:0;">🏆 Lider Tablosu</h2>
+      <p style="text-align:center;color:#888;font-size:14px;">Top ${leaderboard.length} Oyuncu</p>
+      
+      <div style="margin-bottom:20px;">
+  `;
+  
+  leaderboard.forEach((p, index) => {
+    const league = leagues[p.league];
+    const isCurrentPlayer = p.name === playerProfile.name;
+    
+    html += `
+      <div style="display:flex;align-items:center;gap:15px;padding:12px;margin-bottom:8px;background:${isCurrentPlayer ? '#2a1a3a' : '#1a1a1a'};border:2px solid ${isCurrentPlayer ? 'gold' : '#333'};border-radius:8px;">
+        <div style="font-size:24px;font-weight:bold;color:#888;min-width:40px;text-align:center;">
+          ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '#' + (index + 1)}
+        </div>
+        <div style="font-size:32px;">${league.icon}</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:bold;color:${isCurrentPlayer ? 'gold' : '#fff'};">
+            ${p.name}
+          </div>
+          <div style="font-size:12px;color:#888;">
+            ${league.name} ${p.division} • ${p.lp} LP
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:14px;color:#4caf50;font-weight:bold;">${p.wins}G ${p.totalGames - p.wins}M</div>
+          <div style="font-size:12px;color:#888;">${p.winRate}% WR</div>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += `
+      </div>
+      <div style="text-align:center;">
+        <button id="closeLeaderboardBtn" style="padding:12px 24px;font-size:16px;background:#6b3fa0;color:white;border:2px solid #6b3fa0;border-radius:8px;cursor:pointer;">
+          Kapat
+        </button>
+      </div>
+    </div>
+  `;
+  
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+  
+  // ✅ SADECE KAPAT - showEndGameStats çağırma!
+  document.getElementById("closeLeaderboardBtn").onclick = () => {
+    overlay.remove();
+  };
+}
+
+// Login ekranını güncelle - isim + lider tablosu
+function updateLoginScreen() {
+  const loginScreen = document.getElementById("loginScreen");
+  loginScreen.innerHTML = `
+    <h1>Roguelike Macerasına Hoş Geldin</h1>
+    <p style="color:#aaa;margin-bottom:20px;">50 turu tamamla ve rankını yükselt!</p>
+    
+    <div id="playerInfoBox" style="background:#1a1a1a;border:2px solid #6b3fa0;border-radius:10px;padding:20px;margin-bottom:20px;max-width:400px;width:100%;"></div>
+    
+    <input id="playerNameInput" placeholder="Oyuncu adını gir" style="margin-bottom:15px;padding:12px;font-size:16px;width:300px;max-width:90%;" />
+    
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button id="startBtn" style="padding:12px 30px;font-size:16px;">▶️ Başla</button>
+      <button id="viewLeaderboardBtnLogin" style="padding:12px 30px;font-size:16px;background:#FFD700;color:#111;border:2px solid #FFD700;">🏆 Lider Tablosu</button>
+    </div>
+  `;
+  
+  loadPlayerProfile();
+  updatePlayerInfoBox();
+  
+  document.getElementById("startBtn").onclick = startGameWithName;
+  
+  // ✅ LİDER TABLOSU BUTONU - showEndGameStats ÇAĞIRMA!
+  document.getElementById("viewLeaderboardBtnLogin").onclick = () => {
+    showLeaderboard(); // ✅ Sadece lider tablosunu göster
+  };
+  
+  document.getElementById("playerNameInput").onkeypress = (e) => {
+    if (e.key === 'Enter') startGameWithName();
+  };
+}
+
+// Oyuncu bilgi kutusunu güncelle
+function updatePlayerInfoBox() {
+  const box = document.getElementById("playerInfoBox");
+  
+  if (playerProfile.name) {
+    const league = leagues[playerProfile.league];
+    const winRate = playerProfile.totalGames > 0 ? ((playerProfile.wins / playerProfile.totalGames) * 100).toFixed(1) : 0;
+    
+    box.innerHTML = `
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:bold;margin-bottom:10px;">Hoş geldin, ${playerProfile.name}!</div>
+        <div style="font-size:48px;margin:15px 0;">${league.icon}</div>
+        <div style="font-size:24px;font-weight:bold;color:${league.color};margin-bottom:10px;">
+          ${league.name} ${playerProfile.division}
+        </div>
+        <div style="font-size:16px;color:#aaa;margin-bottom:10px;">
+          ${playerProfile.lp} / ${league.lpNeeded} LP
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;font-size:13px;">
+          <div>Toplam Oyun: <span style="color:#4caf50;font-weight:bold;">${playerProfile.totalGames}</span></div>
+          <div>Galibiyet: <span style="color:#4caf50;font-weight:bold;">${playerProfile.wins}</span></div>
+          <div>Kazanma Oranı: <span style="color:#FFD700;font-weight:bold;">${winRate}%</span></div>
+          <div>En İyi: <span style="color:#9c27b0;font-weight:bold;">Tur ${playerProfile.bestTurn}</span></div>
+        </div>
+      </div>
+    `;
+  } else {
+    box.innerHTML = `
+      <div style="text-align:center;color:#888;">
+        <div style="font-size:48px;margin-bottom:10px;">🎮</div>
+        <div>Yeni oyuncu musun?</div>
+        <div style="font-size:12px;margin-top:10px;">İsmini gir ve maceraya başla!</div>
+      </div>
+    `;
+  }
+}
+
+// İsimle oyunu başlat
+function startGameWithName() {
+  const nameInput = document.getElementById("playerNameInput");
+  const name = nameInput.value.trim();
+  
+  // ✅ İSİM KONTROLÜ
+  if (!name) {
+    alert("Lütfen bir oyuncu adı gir!");
+    return;
+  }
+  
+  if (name !== playerProfile.name) {
+    if (playerProfile.name) {
+      savePlayerProfile();
+    }
+    
+    const allProfiles = JSON.parse(localStorage.getItem('allProfiles') || '{}');
+    if (allProfiles[name]) {
+      playerProfile = allProfiles[name];
+    } else {
+      playerProfile = {
+        name: name,
+        league: "bronze",
+        division: 4,
+        lp: 0,
+        totalGames: 0,
+        wins: 0,
+        losses: 0,
+        totalGold: 0,
+        totalKills: 0,
+        bestTurn: 0,
+        totalDamageDealt: 0,
+        totalDamageTaken: 0,
+        criticalHits: 0,
+        skillsUsed: 0,
+        itemsBought: 0,
+        augmentsCollected: 0,
+        companionsUsed: []
+      };
+    }
+    
+    allProfiles[name] = playerProfile;
+    localStorage.setItem('allProfiles', JSON.stringify(allProfiles));
+  }
+  
+  savePlayerProfile();
+  resetGameStats();
+  
+  loginScreen.classList.remove("active");
+  selectScreen.classList.add("active");
+  rollAll();
+}
+
+// Oyunu yeniden başlat
+function restartGame() {
+  // State'i sıfırla (mevcut kod)
+  player = null;
+  enemies = [];
+  selectedEnemyIndex = null;
+  gold = 100;
+  inventory = {};
+  passiveItems = [];
+  purchasedItems = [];
+  selectedAugments = [];
+  currentTurn = 1;
+  companion = null;
+  isDefending = false;
+  leviCritTriggered = false;
+  gojoHitsRemaining = 3;
+  berserkerTurnsLeft = 0;
+  narutoRageActive = false;
+  rerollUsed = [false, false, false];
+  currentChoices = [];
+  selectedIndex = null;
+  shopCost = 0;
+  lastFreeShopTurn = 0;
+
+  achievements.forEach(ach => {
+    ach.unlocked = false;
+    if (ach.critCount !== undefined) ach.critCount = 0;
+    if (ach.skillCount !== undefined) ach.skillCount = 0;
+  });
+
+  const logPanel = document.getElementById("logPanel");
+  logPanel.innerHTML = "";
+
+  // Yeni oyun istatistiklerini sıfırla
+  resetGameStats();
+
+  gameScreen.classList.remove("active");
+  selectScreen.classList.add("active");
+  rollAll();
+}
+
+// ===== ENTEGRASYON NOKTALARI =====
+
+// 1. dealDamage fonksiyonuna ekle:
+function trackDamageDealt(damage) {
+  gameStats.damageDealt += damage;
+}
+
+function trackDamageTaken(damage) {
+  gameStats.damageTaken += damage;
+}
+
+function trackCritical() {
+  gameStats.criticalHits++;
+}
+
+function trackSkillUse() {
+  gameStats.skillsUsed++;
+}
+
+// 2. onEnemyDefeated fonksiyonuna ekle:
+function trackKill() {
+  gameStats.kills++;
+}
+
+// 3. buyItem fonksiyonuna ekle:
+function trackItemBought() {
+  gameStats.itemsBought++;
+}
+
+// 4. augment seçiminde ekle:
+function trackAugment() {
+  gameStats.augmentsCollected++;
+}
+
+// 5. Gold kazanımında ekle:
+function trackGold(amount) {
+  gameStats.goldEarned += amount;
+}
+
+// 6. Tur tamamlandığında:
+function trackTurnComplete() {
+  gameStats.turnsCompleted = currentTurn - 1;
+}
+
+// ===== SAYFA YÜKLENDİĞİNDE =====
+// Eski startBtn onclick yerine yeni sistem kullan
+document.addEventListener('DOMContentLoaded', () => {
+  updateLoginScreen();
+});
