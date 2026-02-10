@@ -1260,3 +1260,423 @@ button:active {
     animation: laneShake 150ms ease;
   }
 }
+
+/* ========== KORİDOR SİSTEMİ - RESPONSIVE ========== */
+
+/* Koridor container */
+#battleArea {
+  width: 100%;
+  padding: 10px;
+}
+
+.lanes-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+/* Lane base style */
+.lane {
+  --lane-glow: rgba(255, 255, 255, 0.3);
+  --lane-glow-subtle: rgba(255, 255, 255, 0.05);
+  
+  border: 3px solid #444;
+  background: linear-gradient(180deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%);
+  border-radius: 12px;
+  padding: 15px;
+  cursor: pointer;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  
+  /* Smooth transitions */
+  transition: all 0.3s ease, opacity 0.2s ease, transform 0.1s ease;
+  
+  /* Default state */
+  opacity: 0.6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Lane NOT selected - karartılmış */
+.lane:not(.selected) {
+  opacity: 0.5;
+  filter: brightness(0.7);
+}
+
+/* Lane selected - parlak ve vurgulu */
+.lane.selected {
+  opacity: 1 !important;
+  filter: brightness(1) !important;
+  border-width: 5px !important;
+  box-shadow: 0 0 30px var(--lane-glow), 
+              0 0 60px var(--lane-glow),
+              inset 0 0 30px var(--lane-glow) !important;
+  animation: lanePulse 2s ease-in-out infinite;
+  z-index: 10;
+}
+
+/* Hover - sadece seçili olmayanlarda */
+.lane:not(.selected):hover {
+  opacity: 0.7;
+  transform: scale(1.02);
+  border-color: #666;
+}
+
+/* Tıklama feedback */
+.lane.clicked {
+  animation: laneClick 150ms ease;
+}
+
+/* Saldırı animasyonu */
+.lane.attacking {
+  animation: laneShake 250ms ease;
+}
+
+/* Tur başlangıcı */
+.lane.turn-start {
+  animation: turnStartGlow 800ms ease;
+}
+
+/* Boş koridor */
+.lane.empty {
+  background: 
+    linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(10,10,10,0.99) 100%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.01) 0px,
+      rgba(255,255,255,0.01) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+  background-size: 100% 100%, 100px 100px;
+  animation: noisePattern 20s linear infinite;
+}
+
+/* Animated gradient overlay - sadece seçilide */
+.lane.selected::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    transparent 0%,
+    var(--lane-glow-subtle) 50%,
+    transparent 100%
+  );
+  background-size: 200% 200%;
+  animation: laneGradient 3s ease infinite;
+  opacity: 0.2;
+  pointer-events: none;
+  border-radius: 12px;
+  z-index: 0;
+}
+
+/* Dekoratif üst çizgi */
+.lane-top-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--lane-border);
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.lane.selected .lane-top-line {
+  height: 6px;
+  box-shadow: 0 0 20px var(--lane-glow);
+}
+
+/* Düşman kartları */
+.enemy-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.enemy-card.target-highlight {
+  transform: translateY(-8px);
+  filter: brightness(1.3);
+  box-shadow: 0 0 35px var(--lane-glow), 0 10px 30px rgba(0,0,0,0.6) !important;
+}
+
+.enemy-card.flash {
+  animation: flashWhite 120ms ease;
+}
+
+.damage-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  font-weight: bold;
+  color: #ff3333;
+  text-shadow: 
+    0 0 10px #ff0000,
+    0 0 20px #ff0000,
+    0 0 30px #ff0000,
+    2px 2px 4px rgba(0,0,0,0.9);
+  pointer-events: none;
+  z-index: 1000;
+  animation: damageFloat 1s ease-out forwards;
+}
+
+/* ========== ANİMASYONLAR ========== */
+
+@keyframes lanePulse {
+  0%, 100% {
+    box-shadow: 0 0 30px var(--lane-glow), 
+                0 0 60px var(--lane-glow),
+                inset 0 0 30px var(--lane-glow);
+  }
+  50% {
+    box-shadow: 0 0 50px var(--lane-glow), 
+                0 0 90px var(--lane-glow),
+                inset 0 0 50px var(--lane-glow);
+  }
+}
+
+@keyframes laneGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes laneClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+@keyframes laneShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px) rotate(-1deg); }
+  75% { transform: translateX(6px) rotate(1deg); }
+}
+
+@keyframes turnStartGlow {
+  0% {
+    box-shadow: 0 0 30px var(--lane-glow), inset 0 0 30px var(--lane-glow);
+  }
+  50% {
+    box-shadow: 0 0 70px var(--lane-glow), 
+                0 0 100px var(--lane-glow),
+                inset 0 0 60px var(--lane-glow);
+  }
+  100% {
+    box-shadow: 0 0 30px var(--lane-glow), inset 0 0 30px var(--lane-glow);
+  }
+}
+
+@keyframes targetPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.85; }
+}
+
+@keyframes damageFloat {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -150%) scale(1.3);
+    opacity: 0;
+  }
+}
+
+@keyframes flashWhite {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(3.5); }
+}
+
+@keyframes noisePattern {
+  0% { background-position: 0 0; }
+  100% { background-position: 100px 100px; }
+}
+
+/* ========== SAVAŞ GÜNLÜĞÜ TOGGLE ========== */
+
+.log-toggle-btn {
+  display: none; /* Desktop'ta gizli */
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #6b3fa0;
+  border: 3px solid gold;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  transition: all 0.3s ease;
+}
+
+.log-toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(107,63,160,0.6);
+}
+
+.log-toggle-btn.active {
+  background: gold;
+  color: #111;
+}
+
+/* ========== MOBİL RESPONSIVE ========== */
+
+@media (max-width: 1024px) {
+  /* Savaş günlüğü toggle göster */
+  .log-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Sağ panel mobilde overlay */
+  .rightPanel {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 90%;
+    max-width: 400px;
+    height: 100vh;
+    z-index: 999;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+  }
+  
+  .rightPanel.active {
+    right: 0;
+  }
+  
+  /* Sol panel tam genişlik */
+  .leftPanel {
+    width: 100% !important;
+    padding: 10px;
+  }
+  
+  /* Battle area tam genişlik */
+  #battleArea {
+    padding: 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Koridorlar ALT ALTA */
+  .lanes-container {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  
+  .lane {
+    min-height: 250px !important;
+    padding: 12px;
+  }
+  
+  .lane.selected {
+    border-width: 4px !important;
+  }
+  
+  .enemy-card {
+    padding: 12px !important;
+  }
+  
+  .enemy-card img {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  
+  .damage-number {
+    font-size: 28px !important;
+  }
+  
+  /* Butonlar büyüsün */
+  #attackBtn, #skillBtn, #defendBtn {
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    min-height: 50px;
+  }
+  
+  /* Item grid mobilde */
+  .itemGrid {
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 3px !important;
+  }
+  
+  .itemSlot img {
+    max-width: 45% !important;
+    max-height: 45% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .lane {
+    min-height: 220px !important;
+    padding: 10px;
+  }
+  
+  .enemy-card {
+    padding: 10px !important;
+    gap: 8px !important;
+  }
+  
+  .enemy-card img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .damage-number {
+    font-size: 24px !important;
+  }
+  
+  /* Butonlar daha büyük */
+  #attackBtn, #skillBtn, #defendBtn {
+    padding: 16px 24px !important;
+    font-size: 18px !important;
+    min-height: 55px;
+  }
+  
+  /* Item grid daha sık */
+  .itemGrid {
+    grid-template-columns: repeat(8, 1fr) !important;
+    gap: 2px !important;
+  }
+}
+
+/* ========== LANDSCAPE MOBİL ========== */
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .lanes-container {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  
+  .lane {
+    min-height: 200px !important;
+    padding: 8px;
+  }
+  
+  .enemy-card {
+    padding: 8px !important;
+  }
+  
+  .enemy-card img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+}
