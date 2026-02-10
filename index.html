@@ -100,5 +100,36 @@
 
 <!-- Script sadece bir kez, body sonunda -->
 <script src="game.js"></script>
+<!-- Mobil Log Toggle Butonu -->
+<button class="log-toggle-btn" id="logToggleBtn">📜</button>
+
+<script>
+// Mobil log toggle
+document.addEventListener('DOMContentLoaded', () => {
+  const logToggle = document.getElementById('logToggleBtn');
+  const rightPanel = document.querySelector('.rightPanel');
+  
+  if (logToggle && rightPanel) {
+    logToggle.onclick = () => {
+      rightPanel.classList.toggle('active');
+      logToggle.classList.toggle('active');
+      
+      // İkon değiştir
+      logToggle.textContent = rightPanel.classList.contains('active') ? '✖️' : '📜';
+    };
+    
+    // Dışarı tıklanınca kapat
+    document.addEventListener('click', (e) => {
+      if (rightPanel.classList.contains('active') && 
+          !rightPanel.contains(e.target) && 
+          e.target !== logToggle) {
+        rightPanel.classList.remove('active');
+        logToggle.classList.remove('active');
+        logToggle.textContent = '📜';
+      }
+    });
+  }
+});
+</script>
 </body>
 </html>
