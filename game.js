@@ -55,14 +55,20 @@ const characters = [
     skillMult:1.3, skillCost:10,
     passive:{ icon:"images/passives/gutsPassive.png", text:"Her vuruşta %5 ihtimalle öfke moduna girer ve 3 tur boyunca hasar %40 artar." }
   },
+  { name:"Kara Kedi", img:"images/characters/karakedi.png",
+    hp:90, mana:100, ad:75, ap:0, armor:40, mr:35,
+    critChance: 0, critMult: 2.2, lifesteal: 0,
+    skillMult:1.3, skillCost:100,
+    passive:{ icon:"images/passives/karakediPassive.png", text:"KEDİ KLİZİM! Bir koridoru komple yok ederim." }
+  },
 ];
 
 const companions = [
   { name:"Himmel", img:"images/characters/himmel.png",
     bonus:{ type:"ad", value:35, text:"Saldırı Gücü +35" }
   },
-  { name:"Heiter", img:"images/characters/heiter.png",
-    bonus:{ type:"heal", value:15, text:"Her turda +15 HP rejenerasyon" }
+  { name:"Maomao", img:"images/characters/maomao.png",
+    bonus:{ type:"heal", value:20, text:"Her turda +20 HP rejenerasyon" }
   },
   { name:"Stark", img:"images/characters/stark.png",
     bonus:{ type:"crit", value:10, text:"Kritik şansı +10%" }
@@ -179,6 +185,10 @@ const enemyTypes = [
   { name:"Ateş Elemental", hp:110, ad:0, ap:62, armor:22, mr:40, gold:70, img:"images/enemies/ates.png", type:"magic" },
   { name:"Antik Lich", hp:200, ad:0, ap:70, armor:35, mr:50, gold:95, img:"images/enemies/lich.png", type:"magic" },
   
+  { name:"Muazzam Dev", hp:300, ad:50, ap:0, armor:60, mr:20, gold:80, img:"images/enemies/muazzamdev.png" },
+  { name:"Zırhlı Dev", hp:250, ad:35, ap:0, armor:80, mr:40, gold:75, img:"images/enemies/zirhlidev.png" },
+  { name:"Mana Sömürücü", hp:80, ad:0, ap:0, armor:15, mr:60, gold:55, img:"images/enemies/manasomuren.png", manaDrain:true },
+
   // Hibrit düşmanlar (AD + AP)
   { name:"Vampir Lord", hp:120, ad:55, ap:55, armor:24, mr:35, gold:60, img:"images/enemies/vampir.png", type:"hybrid" },
   { name:"Demon", hp:160, ad:75, ap:75, armor:32, mr:38, gold:75, img:"images/enemies/demon.png", type:"hybrid" },
@@ -290,8 +300,8 @@ const achievements = [
 // ==== STATE ====
 
 let player = null;
-let enemies = [];
-let selectedEnemyIndex = null;
+let lanes = [[], [], []]; // 3 koridor, her biri düşman dizisi
+let selectedLane = 0; // Seçili koridor (0, 1, 2)
 let gold = 100;
 let inventory = {};
 let passiveItems = [];
@@ -760,6 +770,7 @@ function applyTurnBonuses() {
   updateUI();
 }
 
+/* TÜMÜNÜ BUL VE DEĞİŞTİR: */
 function startBattle() {
   if (currentTurn > maxTurns) {
     addLog("🏆 TEBRİKLER! Tüm turları tamamladınız!");
@@ -767,10 +778,8 @@ function startBattle() {
     return;
   }
 
-  // ✅ BURAYI EKLE
   applyTurnBonuses();
 
-  // Augment seçimi (10, 20, 30, 40. turlar)
   if (currentTurn % 10 === 0 && currentTurn > 0 && currentTurn !== 50) {
     showAugmentSelection();
     return;
@@ -781,67 +790,358 @@ function startBattle() {
     return;
   }
 
-  // Düşman sayısı (erken artış)
-  let enemyCount = 1;
-  if (currentTurn >= 5) enemyCount = Math.random() < 0.2 ? 2 : 1;
-  if (currentTurn >= 15) enemyCount = Math.random() < 0.4 ? 2 : 1;
-  if (currentTurn >= 25) enemyCount = Math.random() < 0.5 ? Math.random() < 0.3 ? 3 : 2 : 1;
-  if (currentTurn >= 35) enemyCount = Math.random() < 0.6 ? Math.random() < 0.4 ? 3 : 2 : 1;
+  // ✅ KORİDORLARI SIFIRLA
+  lanes = [[], [], []];
+  selectedLane = 0;
 
-  enemies = [];
-  
-  for (let i = 0; i < enemyCount; i++) {
-    // Daha çeşitli düşmanlar
+  // Düşman sayısı (turdan turda artıyor)
+  let totalEnemies = 1;
+  if (currentTurn >= 5) totalEnemies = Math.random() < 0.3 ? 2 : 1;
+  if (currentTurn >= 10) totalEnemies = 2;
+  if (currentTurn >= 15) totalEnemies = 2 + (Math.random() < 0.3 ? 1 : 0);
+  if (currentTurn >= 20) totalEnemies = 3;
+  if (currentTurn >= 25) totalEnemies = 3 + (Math.random() < 0.4 ? 1 : 0);
+  if (currentTurn >= 30) totalEnemies = 4;
+  if (currentTurn >= 35) totalEnemies = 4 + (Math.random() < 0.5 ? 1 : 0);
+  if (currentTurn >= 40) totalEnemies = 5;
+
+  // Düşmanları rastgele koridorlara dağıt
+  for (let i = 0; i < totalEnemies; i++) {
     let enemyIndex = Math.min(Math.floor(currentTurn / 3.5), enemyTypes.length - 1);
     let template = enemyTypes[enemyIndex];
     let enemy = JSON.parse(JSON.stringify(template));
     
-    // Daha hızlı güçlenme
+    // Tur ilerledikçe düşmanlar güçlenir
     let boost = Math.floor(currentTurn / 3);
     enemy.hp += boost * 20;
-    enemy.dmg += boost * 7;
+    enemy.ad += boost * 7;
+    enemy.ap += boost * 5;
     enemy.armor += boost * 4;
     enemy.mr += boost * 3;
+
+    // ✅ MAX HP KAYDET (HP barı için)
+    enemy.maxHp = enemy.hp;
     
-    enemies.push(enemy);
+    // Rastgele koridora ekle
+    let randomLane = Math.floor(Math.random() * 3);
+    lanes[randomLane].push(enemy);
   }
 
-  selectedEnemyIndex = 0;
-  
-  if (enemyCount > 1) {
-    addLog(`⚔️ Tur ${currentTurn}: ${enemyCount} düşmanla karşılaşıyorsun!`);
-  } else {
-    addLog(`⚔️ Tur ${currentTurn}: ${enemies[0].name} ile karşılaşıyorsun!`);
-  }
+  addLog(`⚔️ Tur ${currentTurn}: Savaş başladı!`);
   
   renderBattle();
   checkAchievements();
+
+    setTimeout(() => {
+    const lanes = document.querySelectorAll('.lane');
+    const selectedLaneDiv = lanes[selectedLane];
+    
+    if (selectedLaneDiv) {
+      selectedLaneDiv.classList.add('turn-start');
+      setTimeout(() => {
+        selectedLaneDiv.classList.remove('turn-start');
+      }, 800);
+    }
+  }, 100);
 }
 
 function renderBattle() {
   const area = document.getElementById("battleArea");
   area.innerHTML = "";
 
-  enemies.forEach((enemy, index) => {
-    const div = document.createElement("div");
-    div.className = `enemyCard ${index === selectedEnemyIndex ? 'selected' : ''}`;
-    div.innerHTML = `
-      <div class="enemyName">${enemy.name}</div>
-      <img src="${enemy.img}">
-      <div class="enemyStats">
-        HP: ${enemy.hp}<br>
-        AD: ${enemy.ad}
-        AP: ${enemy.ap}
-      </div>
+  const laneColors = [
+    { 
+      border: '#00bcd4', 
+      glow: 'rgba(0, 188, 212, 0.6)', 
+      glowSubtle: 'rgba(0, 188, 212, 0.1)',
+      name: 'Buz Mavisi' 
+    },
+    { 
+      border: '#ffd700', 
+      glow: 'rgba(255, 215, 0, 0.6)', 
+      glowSubtle: 'rgba(255, 215, 0, 0.1)',
+      name: 'Altın' 
+    },
+    { 
+      border: '#4caf50', 
+      glow: 'rgba(76, 175, 80, 0.6)', 
+      glowSubtle: 'rgba(76, 175, 80, 0.1)',
+      name: 'Yeşim' 
+    }
+  ];
+
+  const container = document.createElement("div");
+  container.style.cssText = `
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    width: 100%;
+    padding: 10px;
+  `;
+
+  lanes.forEach((lane, laneIndex) => {
+    const isSelected = laneIndex === selectedLane;
+    const color = laneColors[laneIndex];
+    const isEmpty = lane.length === 0;
+    
+    const laneDiv = document.createElement("div");
+    laneDiv.className = `lane ${isSelected ? 'selected' : ''} ${isEmpty ? 'empty' : ''}`;
+    laneDiv.style.cssText = `
+      --lane-glow: ${color.glow};
+      --lane-glow-subtle: ${color.glowSubtle};
+      border: ${isSelected ? '4px' : '3px'} solid ${color.border};
+      background: ${isEmpty 
+        ? 'linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(10,10,10,0.99) 100%)' 
+        : 'linear-gradient(180deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)'
+      };
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+      ${isSelected ? '' : 'box-shadow: 0 0 10px rgba(0,0,0,0.5);'}
+      position: relative;
+      overflow: hidden;
     `;
     
-    div.onclick = () => {
-      selectedEnemyIndex = index;
+    // Arka plan dekoratif çizgi
+    const bgLine = document.createElement("div");
+    bgLine.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: ${color.border};
+      ${isSelected ? `box-shadow: 0 0 15px ${color.glow};` : ''}
+      z-index: 1;
+    `;
+    laneDiv.appendChild(bgLine);
+    
+    // ✅ TIKLAMA ANİMASYONU
+    laneDiv.onclick = (e) => {
+      selectedLane = laneIndex;
+      
+      // Tıklama animasyonu
+      laneDiv.classList.add('clicked');
+      setTimeout(() => {
+        laneDiv.classList.remove('clicked');
+      }, 150);
+      
       renderBattle();
     };
-    
-    area.appendChild(div);
+
+    // ✅ DÜŞMANLARI GÖSTER
+    if (lane.length > 0) {
+      lane.forEach((enemy, enemyIndex) => {
+        const enemyCard = document.createElement("div");
+        const isFirst = enemyIndex === 0;
+        
+        enemyCard.className = `enemy-card ${isFirst && isSelected ? 'target-highlight' : ''}`;
+        enemyCard.dataset.enemyIndex = enemyIndex;
+        enemyCard.dataset.laneIndex = laneIndex;
+        
+        enemyCard.style.cssText = `
+          background: ${isFirst 
+            ? `linear-gradient(135deg, rgba(${
+                color.border === '#00bcd4' ? '0,188,212' : 
+                color.border === '#ffd700' ? '255,215,0' : 
+                '76,175,80'
+              },0.15) 0%, rgba(10,10,10,0.95) 100%)`
+            : 'linear-gradient(135deg, rgba(40,40,40,0.8) 0%, rgba(20,20,20,0.9) 100%)'
+          };
+          border: 3px solid ${isFirst ? color.border : '#444'};
+          border-radius: 12px;
+          padding: 15px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          position: relative;
+          transition: all 0.3s ease;
+        `;
+        
+        // Hover efekti
+        enemyCard.onmouseenter = () => {
+          if (!isFirst || !isSelected) {
+            enemyCard.style.transform = 'translateY(-5px) scale(1.02)';
+          }
+        };
+        enemyCard.onmouseleave = () => {
+          if (!isFirst || !isSelected) {
+            enemyCard.style.transform = '';
+          }
+        };
+        
+        // EN ÖNDEKİ DÜŞMAN İŞARETİ
+        if (isFirst) {
+          const badge = document.createElement("div");
+          badge.textContent = "🎯";
+          badge.style.cssText = `
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: ${color.border};
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 3px solid #000;
+            box-shadow: 0 0 15px ${color.glow};
+            animation: targetPulse 1.5s infinite;
+            z-index: 10;
+          `;
+          enemyCard.appendChild(badge);
+        }
+        
+        // DÜŞMAN RESMİ
+        const enemyImg = document.createElement("img");
+        enemyImg.src = enemy.img;
+        enemyImg.style.cssText = `
+          width: 90px;
+          height: 90px;
+          object-fit: cover;
+          border-radius: 10px;
+          border: 3px solid ${isFirst ? color.border : '#555'};
+          ${isFirst ? `box-shadow: 0 0 20px ${color.glow};` : 'box-shadow: 0 2px 8px rgba(0,0,0,0.5);'}
+        `;
+        enemyCard.appendChild(enemyImg);
+        
+        // DÜŞMAN ADI
+        const nameDiv = document.createElement("div");
+        nameDiv.textContent = enemy.name;
+        nameDiv.style.cssText = `
+          font-weight: bold;
+          color: ${isFirst ? color.border : '#fff'};
+          font-size: 15px;
+          text-align: center;
+          text-shadow: ${isFirst ? `0 0 10px ${color.glow}` : '0 2px 4px rgba(0,0,0,0.8)'};
+          letter-spacing: 0.5px;
+        `;
+        enemyCard.appendChild(nameDiv);
+        
+        // HP BARI
+        const hpContainer = document.createElement("div");
+        hpContainer.style.cssText = `
+          width: 100%;
+          background: #1a1a1a;
+          border-radius: 6px;
+          overflow: hidden;
+          border: 2px solid #333;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        `;
+        
+        const hpBar = document.createElement("div");
+        const maxHp = enemy.maxHp || enemy.hp; // Başlangıç HP'si
+        const hpPercent = (enemy.hp / maxHp) * 100;
+        hpBar.style.cssText = `
+          width: ${hpPercent}%;
+          height: 10px;
+          background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+          transition: width 0.3s;
+          box-shadow: 0 0 8px rgba(231,76,60,0.6);
+        `;
+        hpContainer.appendChild(hpBar);
+        enemyCard.appendChild(hpContainer);
+        
+        // HP YAZISI
+        const hpText = document.createElement("div");
+        hpText.textContent = `❤️ ${enemy.hp}`;
+        hpText.style.cssText = `
+          color: #e74c3c;
+          font-weight: bold;
+          font-size: 14px;
+          text-align: center;
+          text-shadow: 0 0 8px rgba(231,76,60,0.8);
+        `;
+        enemyCard.appendChild(hpText);
+        
+        // HASAR BİLGİSİ
+        let damageInfo = "";
+        if (enemy.ad > 0 && enemy.ap > 0) {
+          damageInfo = `<span style="color:#ff5722;">⚔️${enemy.ad}</span> <span style="color:#9c27b0;">🔮${enemy.ap}</span>`;
+        } else if (enemy.ad > 0) {
+          damageInfo = `<span style="color:#ff5722;">⚔️ ${enemy.ad}</span>`;
+        } else if (enemy.ap > 0) {
+          damageInfo = `<span style="color:#9c27b0;">🔮 ${enemy.ap}</span>`;
+        } else if (enemy.manaDrain) {
+          damageInfo = `<span style="color:#2196f3;">💧 Mana Çalar</span>`;
+        }
+        
+        if (damageInfo) {
+          const dmgDiv = document.createElement("div");
+          dmgDiv.innerHTML = damageInfo;
+          dmgDiv.style.cssText = `
+            font-size: 12px;
+            text-align: center;
+            margin-top: 4px;
+            font-weight: 600;
+          `;
+          enemyCard.appendChild(dmgDiv);
+        }
+        
+        // ZIRH/MR
+        const defenseDiv = document.createElement("div");
+        defenseDiv.innerHTML = `<span style="color:#90a4ae;">🛡️${enemy.armor}</span> <span style="color:#7e57c2;">🔰${enemy.mr}</span>`;
+        defenseDiv.style.cssText = `
+          font-size: 10px;
+          color: #777;
+          text-align: center;
+          margin-top: 2px;
+        `;
+        enemyCard.appendChild(defenseDiv);
+        
+        laneDiv.appendChild(enemyCard);
+      });
+    }
+
+    container.appendChild(laneDiv);
   });
+
+  area.appendChild(container);
+}
+
+// ✅ SALDIRI ANİMASYONU
+function showAttackAnimation(laneIndex, enemyIndex, damage) {
+  // Koridor shake
+  const lanes = document.querySelectorAll('.lane');
+  const targetLane = lanes[laneIndex];
+  
+  if (targetLane) {
+    targetLane.classList.add('attacking');
+    setTimeout(() => {
+      targetLane.classList.remove('attacking');
+    }, 200);
+  }
+  
+  // Düşman kartı flash + damage number
+  const enemyCards = targetLane.querySelectorAll('.enemy-card');
+  const targetCard = enemyCards[enemyIndex];
+  
+  if (targetCard) {
+    // Flash efekti
+    targetCard.classList.add('flash');
+    setTimeout(() => {
+      targetCard.classList.remove('flash');
+    }, 100);
+    
+    // Damage number
+    const damageNum = document.createElement('div');
+    damageNum.className = 'damage-number';
+    damageNum.textContent = `-${Math.floor(damage)}`;
+    targetCard.appendChild(damageNum);
+    
+    // Animasyon bitince kaldır
+    setTimeout(() => {
+      damageNum.remove();
+    }, 1000);
+  }
 }
 
 function showCompanionSelect() {
@@ -950,23 +1250,38 @@ function showCompanionSelect() {
 // ==== COMBAT ====
 
 document.getElementById("attackBtn").onclick = () => {
-  if (enemies.length === 0) return;
+  if (lanes[selectedLane].length === 0) {
+    addLog("⚠️ Bu koridor boş! Başka bir koridor seç.");
+    return;
+  }
   
   isDefending = false;
-  dealDamage(player, enemies[selectedEnemyIndex], false);
+  
+  // ✅ SALDIRI ÖNCESİ HP KAYDET
+  const enemyBeforeHp = lanes[selectedLane][0].hp;
+  
+  dealDamage(player, lanes[selectedLane][0], false);
+  
+  // ✅ HASAR MİKTARINI HESAPLA
+  const damageDealt = enemyBeforeHp - lanes[selectedLane][0].hp;
+  
+  // ✅ ANİMASYONLARI ÇALIŞTIR
+  showAttackAnimation(selectedLane, 0, damageDealt);
 
-  if (enemies[selectedEnemyIndex].hp <= 0) {
-    onEnemyDefeated(selectedEnemyIndex);
-    if (enemies.length === 0) return;
+  if (lanes[selectedLane][0].hp <= 0) {
+    onEnemyDefeated(selectedLane, 0);
+  } else {
+    enemyTurn();
+    nextTurn();
   }
-
-  enemyTurn();
-  nextTurn();
 };
 
-// ✅ ÇÖZÜM 3: Düşük mana uyarısı + otomatik iksir önerisi
 document.getElementById("skillBtn").onclick = () => {
-  if (enemies.length === 0) return;
+  // Seçili koridorda düşman var mı?
+  if (lanes[selectedLane].length === 0) {
+    addLog("⚠️ Bu koridor boş! Başka bir koridor seç.");
+    return;
+  }
   
   let cost = player.skillCost;
   
@@ -982,9 +1297,7 @@ document.getElementById("skillBtn").onclick = () => {
     cost = Math.floor(cost * (1 - player.prismaticMana));
   }
 
-  // ✅ MANA KONTROLÜ VE UYARI
   if (player.mana < cost) {
-    // Mana iksiri var mı kontrol et
     if (inventory["mana_pot"] && inventory["mana_pot"].count > 0) {
       addLog("⚠️ Yeterli mana yok! Mana İksiri kullanmayı dene.");
     } else {
@@ -997,15 +1310,55 @@ document.getElementById("skillBtn").onclick = () => {
   player.mana -= cost;
   trackSkillUse();
 
-  dealDamage(player, enemies[selectedEnemyIndex], true);
+ if (player.name === "Kara Kedi") {
+  addLog(`😼 KEDİ KRİZİM! Koridor ${selectedLane + 1} tamamen temizlendi!`);
+  
+  // ✅ HER DÜŞMAN İÇİN ANİMASYON
+  lanes[selectedLane].forEach((enemy, idx) => {
+    showAttackAnimation(selectedLane, idx, enemy.hp);
+    gold += enemy.gold;
+    trackKill();
+    trackGold(enemy.gold);
+  });
+  
+  lanes[selectedLane] = [];
+  
+} else {
+  // ✅ NORMAL SKILL
+  const enemyBeforeHp = lanes[selectedLane][0].hp;
+  
+  dealDamage(player, lanes[selectedLane][0], true);
+  
+  const damageDealt = enemyBeforeHp - lanes[selectedLane][0].hp;
+  showAttackAnimation(selectedLane, 0, damageDealt);
 
-  if (enemies[selectedEnemyIndex].hp <= 0) {
-    onEnemyDefeated(selectedEnemyIndex);
-    if (enemies.length === 0) return;
+  if (lanes[selectedLane][0].hp <= 0) {
+    onEnemyDefeated(selectedLane, 0);
+  } else {
+    enemyTurn();
+    nextTurn();
   }
-
-  enemyTurn();
-  nextTurn();
+}
+  
+  // Tüm koridorlar boş mu?
+  let allEmpty = lanes.every(lane => lane.length === 0);
+  if (allEmpty) {
+    currentTurn++;
+    trackTurnComplete();
+    
+    if (berserkerTurnsLeft > 0) {
+      berserkerTurnsLeft--;
+      if (berserkerTurnsLeft === 0) {
+        addLog("😌 Berserker modu sona erdi.");
+      }
+    }
+    
+    updateUI();
+    startBattle();
+  } else {
+    renderBattle();
+    updateUI();
+  }
 };
 
 document.getElementById("defendBtn").onclick = () => {
@@ -1177,21 +1530,32 @@ function dealDamage(attacker, defender, isMagic=false) {
 }
 
 function enemyTurn() {
-  enemies.forEach(enemy => {
+  // Her koridordaki EN ÖNDEKİ düşman saldırır
+  lanes.forEach((lane, laneIndex) => {
+    if (lane.length === 0) return; // Boş koridor
+    
+    const enemy = lane[0]; // En öndeki
+    
+    // ✅ MANA SÖMÜRüCÜ
+    if (enemy.manaDrain) {
+      let manaDmg = Math.max(10, 30);
+      player.mana = Math.max(0, player.mana - manaDmg);
+      addLog(`🧙 ${enemy.name} (K${laneIndex + 1}) ${manaDmg} mana çaldı!`);
+      return;
+    }
+    
     let totalDmg = 0;
     
-    // ✅ FİZİKSEL HASAR (AD)
+    // Fiziksel hasar
     if (enemy.ad > 0) {
       let physicalDmg = Math.max(1, enemy.ad - player.armor);
       totalDmg += physicalDmg;
-      addLog(`⚔️ ${enemy.name} fiziksel hasar: ${physicalDmg}`);
     }
     
-    // ✅ BÜYÜ HASARI (AP)
+    // Büyü hasarı
     if (enemy.ap > 0) {
       let magicDmg = Math.max(1, enemy.ap - player.mr);
       totalDmg += magicDmg;
-      addLog(`🔮 ${enemy.name} büyü hasarı: ${magicDmg}`);
     }
 
     // Savunma modu
@@ -1203,97 +1567,72 @@ function enemyTurn() {
     if (player.name === "Gojo Satoru" && gojoHitsRemaining > 0) {
       totalDmg = Math.floor(totalDmg / 2);
       gojoHitsRemaining--;
-      addLog(`♾️ Gojo'nun Infinity savunması! Hasar yarıya indi. (${gojoHitsRemaining} kalan)`);
+      addLog(`♾️ Gojo Infinity! (${gojoHitsRemaining} kalan)`);
     }
 
     player.hp -= totalDmg;
     trackDamageTaken(totalDmg);
 
-    // ✅ THORNMAIL - TOPLAM HASARA GÖRE YANSIT
+    // Thornmail yansıtma
     if (player.thornmail > 0) {
       let reflectDmg = Math.floor(totalDmg * player.thornmail);
       enemy.hp -= reflectDmg;
-      addLog(`🌵 Thornmail ${reflectDmg} hasar yansıttı!`);
+      addLog(`🌵 Thornmail ${reflectDmg} yansıttı!`);
       
       if (enemy.hp <= 0) {
-        addLog(`💀 ${enemy.name} yansıyan hasardan öldü!`);
+        addLog(`💀 ${enemy.name} thornmail'den öldü!`);
+        onEnemyDefeated(laneIndex, 0);
       }
     }
     
-    if (isDefending) {
-      addLog(`🛡️ Savunma sayesinde toplam ${totalDmg} hasar aldın!`);
-    } else {
-      addLog(`👹 ${enemy.name} toplam ${totalDmg} hasar verdi!`);
-    }
+    addLog(`👹 ${enemy.name} (K${laneIndex + 1}) ${totalDmg} hasar verdi!`);
   });
 
-  // Thornmail'den ölen düşmanları temizle
-  enemies = enemies.filter(e => e.hp > 0);
+  if (player.hp <= 0) {
+    player.hp = 0;
+    addLog("💀 Öldün!");
+    endGame(false);
+  }
+}
+
+function onEnemyDefeated(laneIndex, enemyIndex) {
+  const defeatedEnemy = lanes[laneIndex][enemyIndex];
+  gold += defeatedEnemy.gold;
+
+  trackKill();
+  trackGold(defeatedEnemy.gold);
+  addLog(`🏆 ${defeatedEnemy.name} öldü! +${defeatedEnemy.gold}g`);
   
-  if (enemies.length === 0) {
+  // Shinigami bonusu
+  if (companion && companion.bonus.type === "death") {
+    let hpRestore = Math.floor(player.maxHp * 0.2);
+    let manaRestore = Math.floor(player.maxMana * 0.2);
+    player.hp = Math.min(player.maxHp, player.hp + hpRestore);
+    player.mana = Math.min(player.maxMana, player.mana + manaRestore);
+    addLog(`💀 Shinigami! +${hpRestore} HP, +${manaRestore} Mana`);
+  }
+  
+  // Düşmanı koridordan SİL (splice ile öndeki kalkar, arkadaki öne geçer)
+  lanes[laneIndex].splice(enemyIndex, 1);
+  
+  // TÜM koridorlar boşaldı mı?
+  let allEmpty = lanes.every(lane => lane.length === 0);
+  
+  if (allEmpty) {
+    // Yeni tur
     currentTurn++;
     trackTurnComplete();
     
     if (berserkerTurnsLeft > 0) {
       berserkerTurnsLeft--;
       if (berserkerTurnsLeft === 0) {
-        addLog("😌 Berserker modu sona erdi.");
+        addLog("😌 Berserker bitti.");
       }
     }
     
     updateUI();
     startBattle();
-    return;
-  }
-
-  if (player.hp <= 0) {
-    player.hp = 0;
-    addLog("💀 Öldün! Oyun bitti...");
-    endGame(false);
-  }
-}
-
-
-function onEnemyDefeated(index) {
-  const defeatedEnemy = enemies[index];
-  gold += defeatedEnemy.gold;
-
-   //  ÖLDÜRME + GOLD TAKIBI 
-  trackKill();
-  trackGold(defeatedEnemy.gold);
-  addLog(`🏆 ${defeatedEnemy.name} yenildi! +${defeatedEnemy.gold}g`);
-  
-  // Shinigami companion - düşman öldüğünde %20 HP ve Mana restore
-  if (companion && companion.bonus.type === "death") {
-    let hpRestore = Math.floor(player.maxHp * 0.2);
-    let manaRestore = Math.floor(player.maxMana * 0.2);
-    player.hp = Math.min(player.maxHp, player.hp + hpRestore);
-    player.mana = Math.min(player.maxMana, player.mana + manaRestore);
-    addLog(`💀 Shinigami'nin gücü! +${hpRestore} HP, +${manaRestore} Mana!`);
-  }
-  
-  enemies.splice(index, 1);
-  
-  if (selectedEnemyIndex >= enemies.length) {
-    selectedEnemyIndex = Math.max(0, enemies.length - 1);
-  }
-  
-if (enemies.length === 0) {
-  currentTurn++;
- // ✅ TUR TAMAMLANDI TAKIBI 
-  trackTurnComplete();
-  
-  // ✅ Guts berserker countdown buraya taşı
-  if (berserkerTurnsLeft > 0) {
-    berserkerTurnsLeft--;
-    if (berserkerTurnsLeft === 0) {
-      addLog("😌 Berserker modu sona erdi.");
-    }
-  }
-  
-  updateUI();
-  startBattle();
-} else {
+  } else {
     renderBattle();
     updateUI();
   }
@@ -1896,10 +2235,10 @@ function showEndGameStats(victory) {
   document.body.appendChild(overlay);
   
   // Lider tablosu butonu
-  document.getElementById("viewLeaderboardBtn").onclick = () => {
-    overlay.remove();
-    showLeaderboard();
-  };
+document.getElementById("viewLeaderboardBtn").onclick = () => {
+  overlay.remove();
+  showLeaderboard(true); // ✅ true = oyun bitti
+};
   
   // Restart butonu
   document.getElementById("restartBtn").onclick = () => {
@@ -1909,7 +2248,7 @@ function showEndGameStats(victory) {
 }
 
 // Lider tablosu göster
-function showLeaderboard() {
+function showLeaderboard(fromEndGame = false) {
   const leaderboard = loadLeaderboard();
   
   const overlay = document.createElement("div");
@@ -1963,9 +2302,13 @@ function showLeaderboard() {
   overlay.innerHTML = html;
   document.body.appendChild(overlay);
   
-  // ✅ SADECE KAPAT - showEndGameStats çağırma!
   document.getElementById("closeLeaderboardBtn").onclick = () => {
     overlay.remove();
+    
+    // ✅ Eğer oyun bitiminden geldiyse, restart ekranına dön
+    if (fromEndGame) {
+      showEndGameStats(player.hp > 0); // Tekrar stat ekranını göster
+    }
   };
 }
 
@@ -1992,9 +2335,9 @@ function updateLoginScreen() {
   document.getElementById("startBtn").onclick = startGameWithName;
   
   // ✅ LİDER TABLOSU BUTONU - showEndGameStats ÇAĞIRMA!
-  document.getElementById("viewLeaderboardBtnLogin").onclick = () => {
-    showLeaderboard(); // ✅ Sadece lider tablosunu göster
-  };
+document.getElementById("viewLeaderboardBtnLogin").onclick = () => {
+  showLeaderboard(false); // ✅ false = login ekranından
+};
   
   document.getElementById("playerNameInput").onkeypress = (e) => {
     if (e.key === 'Enter') startGameWithName();
