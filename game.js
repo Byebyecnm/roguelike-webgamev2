@@ -852,32 +852,26 @@ function renderBattle() {
   const laneColors = [
     { 
       border: '#00bcd4', 
-      glow: 'rgba(0, 188, 212, 0.6)', 
-      glowSubtle: 'rgba(0, 188, 212, 0.1)',
+      glow: 'rgba(0, 188, 212, 0.8)', 
+      glowSubtle: 'rgba(0, 188, 212, 0.15)',
       name: 'Buz Mavisi' 
     },
     { 
       border: '#ffd700', 
-      glow: 'rgba(255, 215, 0, 0.6)', 
-      glowSubtle: 'rgba(255, 215, 0, 0.1)',
+      glow: 'rgba(255, 215, 0, 0.8)', 
+      glowSubtle: 'rgba(255, 215, 0, 0.15)',
       name: 'Altın' 
     },
     { 
       border: '#4caf50', 
-      glow: 'rgba(76, 175, 80, 0.6)', 
-      glowSubtle: 'rgba(76, 175, 80, 0.1)',
+      glow: 'rgba(76, 175, 80, 0.8)', 
+      glowSubtle: 'rgba(76, 175, 80, 0.15)',
       name: 'Yeşim' 
     }
   ];
 
   const container = document.createElement("div");
-  container.style.cssText = `
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    width: 100%;
-    padding: 10px;
-  `;
+  container.className = "lanes-container";
 
   lanes.forEach((lane, laneIndex) => {
     const isSelected = laneIndex === selectedLane;
@@ -886,53 +880,38 @@ function renderBattle() {
     
     const laneDiv = document.createElement("div");
     laneDiv.className = `lane ${isSelected ? 'selected' : ''} ${isEmpty ? 'empty' : ''}`;
-    laneDiv.style.cssText = `
-      --lane-glow: ${color.glow};
-      --lane-glow-subtle: ${color.glowSubtle};
-      border: ${isSelected ? '4px' : '3px'} solid ${color.border};
-      background: ${isEmpty 
-        ? 'linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(10,10,10,0.99) 100%)' 
-        : 'linear-gradient(180deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)'
-      };
-      border-radius: 12px;
-      padding: 15px;
-      cursor: pointer;
-      min-height: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: all 0.3s ease;
-      ${isSelected ? '' : 'box-shadow: 0 0 10px rgba(0,0,0,0.5);'}
-      position: relative;
-      overflow: hidden;
-    `;
+    laneDiv.style.setProperty('--lane-border', color.border);
+    laneDiv.style.setProperty('--lane-glow', color.glow);
+    laneDiv.style.setProperty('--lane-glow-subtle', color.glowSubtle);
+    laneDiv.style.borderColor = color.border;
     
-    // Arka plan dekoratif çizgi
-    const bgLine = document.createElement("div");
-    bgLine.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: ${color.border};
-      ${isSelected ? `box-shadow: 0 0 15px ${color.glow};` : ''}
-      z-index: 1;
-    `;
-    laneDiv.appendChild(bgLine);
-    
-    // ✅ TIKLAMA ANİMASYONU
+    // ✅ TAMAMINA TIKLANABİLİR - Event delegation
     laneDiv.onclick = (e) => {
+      // Önceki seçimi kaldır
+      const oldSelected = selectedLane;
       selectedLane = laneIndex;
       
-      // Tıklama animasyonu
+      // Tıklama feedback
       laneDiv.classList.add('clicked');
       setTimeout(() => {
         laneDiv.classList.remove('clicked');
       }, 150);
       
+      // ✅ Seçim değiştiyse log ekle
+      if (oldSelected !== laneIndex) {
+        const colorName = color.name;
+        addLog(`📍 ${colorName} koridor seçildi!`);
+      }
+      
+      // Render
       renderBattle();
     };
+    
+    // Dekoratif üst çizgi
+    const topLine = document.createElement("div");
+    topLine.className = "lane-top-line";
+    topLine.style.background = color.border;
+    laneDiv.appendChild(topLine);
 
     // ✅ DÜŞMANLARI GÖSTER
     if (lane.length > 0) {
@@ -950,7 +929,7 @@ function renderBattle() {
                 color.border === '#00bcd4' ? '0,188,212' : 
                 color.border === '#ffd700' ? '255,215,0' : 
                 '76,175,80'
-              },0.15) 0%, rgba(10,10,10,0.95) 100%)`
+              },0.2) 0%, rgba(10,10,10,0.95) 100%)`
             : 'linear-gradient(135deg, rgba(40,40,40,0.8) 0%, rgba(20,20,20,0.9) 100%)'
           };
           border: 3px solid ${isFirst ? color.border : '#444'};
@@ -961,39 +940,40 @@ function renderBattle() {
           align-items: center;
           gap: 10px;
           position: relative;
-          transition: all 0.3s ease;
         `;
         
-        // Hover efekti
-        enemyCard.onmouseenter = () => {
+        // Hover - kartın kendisine değil lane'e odaklan
+        enemyCard.onmouseenter = (e) => {
+          e.stopPropagation();
           if (!isFirst || !isSelected) {
-            enemyCard.style.transform = 'translateY(-5px) scale(1.02)';
+            enemyCard.style.transform = 'translateY(-3px) scale(1.01)';
           }
         };
-        enemyCard.onmouseleave = () => {
+        enemyCard.onmouseleave = (e) => {
+          e.stopPropagation();
           if (!isFirst || !isSelected) {
             enemyCard.style.transform = '';
           }
         };
         
-        // EN ÖNDEKİ DÜŞMAN İŞARETİ
+        // ✅ EN ÖNDEKİ İŞARETİ
         if (isFirst) {
           const badge = document.createElement("div");
           badge.textContent = "🎯";
           badge.style.cssText = `
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -12px;
+            right: -12px;
             background: ${color.border};
-            width: 35px;
-            height: 35px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             border: 3px solid #000;
-            box-shadow: 0 0 15px ${color.glow};
+            box-shadow: 0 0 20px ${color.glow};
             animation: targetPulse 1.5s infinite;
             z-index: 10;
           `;
@@ -1009,7 +989,7 @@ function renderBattle() {
           object-fit: cover;
           border-radius: 10px;
           border: 3px solid ${isFirst ? color.border : '#555'};
-          ${isFirst ? `box-shadow: 0 0 20px ${color.glow};` : 'box-shadow: 0 2px 8px rgba(0,0,0,0.5);'}
+          ${isFirst ? `box-shadow: 0 0 25px ${color.glow};` : 'box-shadow: 0 2px 8px rgba(0,0,0,0.5);'}
         `;
         enemyCard.appendChild(enemyImg);
         
@@ -1038,7 +1018,7 @@ function renderBattle() {
         `;
         
         const hpBar = document.createElement("div");
-        const maxHp = enemy.maxHp || enemy.hp; // Başlangıç HP'si
+        const maxHp = enemy.maxHp || enemy.hp;
         const hpPercent = (enemy.hp / maxHp) * 100;
         hpBar.style.cssText = `
           width: ${hpPercent}%;
