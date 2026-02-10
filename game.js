@@ -690,29 +690,100 @@ function openShop() {
       <div class="itemName">${it.name}</div>
       <span style="color:gold">${it.price}g</span><br>
       ${alreadyBought ? '<span style="color:#888;font-size:12px;">Satın Alındı</span>' : 
-        `<button ${canBuy ? "" : "disabled"}>Satın Al</button>`}
+        `<button class="buy-item-btn" ${canBuy ? "" : "disabled"}>Satın Al</button>`}
     `;
 
-    attachItemHover(d, it);
+    // ✅ HOVER TOOLTIP (sadece desktop)
+    if (window.innerWidth > 768) {
+      d.addEventListener("mouseenter", () => {
+        let content = `<b>${it.name}</b><br>`;
+        if (it.price) content += `<span style="color:gold">${it.price}g</span><br>`;
+        if (it.desc) content += `<span style="color:#aaa;font-size:11px;">${it.desc}</span><br>`;
+        
+        if (it.usable) {
+          content += `<span style="color:#4caf50;">✓ Kullanılabilir</span>`;
+        } else {
+          content += `<span style="color:#9c27b0;">⚡ Pasif Eşya</span>`;
+        }
 
-    const btn = d.querySelector("button");
+        tooltip.innerHTML = content;
+        tooltip.style.display = "block";
+      });
+      
+      d.addEventListener("mousemove", (e) => {
+        tooltip.style.left = e.pageX + 15 + "px";
+        tooltip.style.top = e.pageY + 15 + "px";
+      });
+      
+      d.addEventListener("mouseleave", () => {
+        hideTooltip();
+      });
+    }
+
+    // ✅ SATIN AL BUTONU - MOBİL VE DESKTOP
+    const btn = d.querySelector(".buy-item-btn");
     if (btn && canBuy) {
-      btn.onclick = () => buyItem(it, overlay);
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        hideTooltip();
+        buyItem(it, overlay);
+      };
     }
 
     grid.appendChild(d);
   });
 
-  overlay.querySelector("#closeShopBtn").onclick = () => overlay.remove();
+  overlay.querySelector("#closeShopBtn").onclick = () => {
+    hideTooltip();
+    overlay.remove();
+  };
+  
+  // ✅ MOBİL - TOOLTIP İÇİN ITEM'A TIKLA
+  if (window.innerWidth <= 768) {
+    grid.querySelectorAll('.shopItem').forEach(item => {
+      item.onclick = (e) => {
+        // Eğer butona tıklanmadıysa tooltip göster
+        if (!e.target.classList.contains('buy-item-btn')) {
+          e.stopPropagation();
+          
+          const itemName = item.querySelector('.itemName').textContent;
+          const itemObj = shopItems.find(it => it.name === itemName);
+          
+          if (itemObj) {
+            let content = `<b>${itemObj.name}</b><br>`;
+            if (itemObj.price) content += `<span style="color:gold">${itemObj.price}g</span><br>`;
+            if (itemObj.desc) content += `<span style="color:#aaa;font-size:11px;">${itemObj.desc}</span><br>`;
+            
+            if (itemObj.usable) {
+              content += `<span style="color:#4caf50;">✓ Kullanılabilir</span>`;
+            } else {
+              content += `<span style="color:#9c27b0;">⚡ Pasif Eşya</span>`;
+            }
+
+            tooltip.innerHTML = content;
+            tooltip.style.display = "block";
+            tooltip.style.position = "fixed";
+            tooltip.style.top = "50%";
+            tooltip.style.left = "50%";
+            tooltip.style.transform = "translate(-50%, -50%)";
+            tooltip.style.zIndex = "10001";
+          }
+        }
+      };
+    });
+  }
 }
 
 function buyItem(item, overlay) {
-  if (gold < item.price) return;
+  if (gold < item.price) {
+    addLog("⚠️ Yeterli altın yok!");
+    return;
+  }
 
   gold -= item.price;
   trackItemBought();
 
-  // ✅ MOBİL TOOLTIP KAPATMA
+  // ✅ TOOLTIP KAPAT
   hideTooltip();
 
   if (item.usable) {
@@ -733,7 +804,9 @@ function buyItem(item, overlay) {
   updateUI();
 
   overlay.remove();
-  openShop();
+  
+  // ✅ YENİDEN AÇ
+  setTimeout(() => openShop(), 50);
 }
 
 // ==== BATTLE ====
@@ -1632,74 +1705,8 @@ function endGame(victory) {
   trackTurnComplete(); // Tur sayısını güncelle
   showEndGameStats(victory); // Yeni istatistik ekranı
 }
-/*function endGame(victory) {
-  const overlay = document.createElement("div");
-  overlay.className = "shopOverlay";
-  overlay.innerHTML = `
-    <div class="shopPanel" style="text-align:center;">
-      <h2>${victory ? "🎉 ZAFER!" : "💀 YENİLDİN"}</h2>
-      <p>Tamamlanan Tur: ${currentTurn - 1}/${maxTurns}</p>
-      <p>Toplanan Altın: ${gold}g</p>
-      <button id="restartBtn" style="padding:12px 24px;font-size:16px;background:#6b3fa0;color:white;border:2px solid gold;border-radius:8px;cursor:pointer;">🔄 Yeniden Başla</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
 
-  // Yeniden başla butonu - setTimeout ile event listener ekleme
-  setTimeout(() => {
-    const btn = document.getElementById("restartBtn");
-    if (btn) {
-      btn.addEventListener("click", function() {
-        const logPanel = document.getElementById("logPanel");
-        logPanel.innerHTML = "";
-  
-        overlay.remove();
-        // State'i sıfırla
-        player = null;
-        enemies = [];
-        selectedEnemyIndex = null;
-        gold = 100;
-        inventory = {};
-        passiveItems = [];
-        purchasedItems = [];
-        selectedAugments = [];
-        currentTurn = 1;
-        companion = null;
-        isDefending = false;
-        leviCritTriggered = false;
-        gojoHitsRemaining = 3;
-        berserkerTurnsLeft = 0;
-        narutoRageActive = false;
-        rerollUsed = [false, false, false];
-        currentChoices = [];
-        selectedIndex = null;
-        
-        // Market sıfırla
-        shopCost = 0;
-        lastFreeShopTurn = 0;
 
-        // Başarımları sıfırla
-        achievements.forEach(ach => {
-          ach.unlocked = false;
-          if (ach.critCount !== undefined) ach.critCount = 0;
-          if (ach.skillCount !== undefined) ach.skillCount = 0;
-        });
-
-        // Overlay'i kaldır
-        overlay.remove();
-
-        // Karakter seçim ekranına dön
-        gameScreen.classList.remove("active");
-        selectScreen.classList.add("active");
-        
-        // Yeni karakterler roll et
-        rollAll();
-      });
-    }
-  }, 100);
-}
-*/
-// ===== TOOLTIP + LOG =====
 
 const tooltip = document.getElementById("tooltip");
 
@@ -1724,9 +1731,9 @@ document.addEventListener("click", (e) => {
 });
 
 function attachItemHover(element, item) {
-  // ✅ DESKTOP - MOUSE HOVER
-  element.addEventListener("mouseenter", () => {
-    if (window.innerWidth > 768) {
+  // ✅ SADECE DESKTOP VE INVENTORY İÇİN
+  if (window.innerWidth > 768) {
+    element.addEventListener("mouseenter", () => {
       element.classList.add("itemHover");
       
       let content = `<b>${item.name}</b><br>`;
@@ -1741,51 +1748,18 @@ function attachItemHover(element, item) {
 
       tooltip.innerHTML = content;
       tooltip.style.display = "block";
-    }
-  });
+    });
 
-  element.addEventListener("mousemove", (e) => {
-    if (window.innerWidth > 768) {
+    element.addEventListener("mousemove", (e) => {
       tooltip.style.left = e.pageX + 15 + "px";
       tooltip.style.top = e.pageY + 15 + "px";
-    }
-  });
+    });
 
-  element.addEventListener("mouseleave", () => {
-    element.classList.remove("itemHover");
-    hideTooltip();
-  });
-  
-  // ✅ MOBİL - TOUCH/CLICK TOOLTIP
-  element.addEventListener("click", (e) => {
-    if (window.innerWidth <= 768) {
-      e.stopPropagation();
-      
-      // Eğer tooltip zaten açıksa kapat
-      if (tooltip.style.display === "block") {
-        hideTooltip();
-        return;
-      }
-      
-      let content = `<b>${item.name}</b><br>`;
-      if (item.price) content += `<span style="color:gold">${item.price}g</span><br>`;
-      if (item.desc) content += `<span style="color:#aaa;font-size:11px;">${item.desc}</span><br>`;
-      
-      if (item.usable) {
-        content += `<span style="color:#4caf50;">✓ Kullanılabilir</span>`;
-      } else {
-        content += `<span style="color:#9c27b0;">⚡ Pasif Eşya</span>`;
-      }
-
-      tooltip.innerHTML = content;
-      tooltip.style.display = "block";
-      tooltip.style.position = "fixed";
-      tooltip.style.top = "50%";
-      tooltip.style.left = "50%";
-      tooltip.style.transform = "translate(-50%, -50%)";
-      tooltip.style.zIndex = "10000";
-    }
-  });
+    element.addEventListener("mouseleave", () => {
+      element.classList.remove("itemHover");
+      hideTooltip();
+    });
+  }
 }
 
 // ===== AUGMENT SİSTEMİ =====
@@ -1855,35 +1829,43 @@ function showAugmentSelection() {
 
 // Augment sonrası devam
 function continueAfterAugment() {
-  // Düşman sayısı (erken artış)
-  let enemyCount = 1;
-  if (currentTurn >= 5) enemyCount = Math.random() < 0.2 ? 2 : 1;
-  if (currentTurn >= 15) enemyCount = Math.random() < 0.4 ? 2 : 1;
-  if (currentTurn >= 25) enemyCount = Math.random() < 0.5 ? Math.random() < 0.3 ? 3 : 2 : 1;
-  if (currentTurn >= 35) enemyCount = Math.random() < 0.6 ? Math.random() < 0.4 ? 3 : 2 : 1;
-
-  enemies = [];
+  // ✅ YENİ LANE SİSTEMİ İLE DEVAM ET
+  lanes = [[], [], []];
+  selectedLane = 0;
   
-  for (let i = 0; i < enemyCount; i++) {
+  // Düşman sayısı
+  let totalEnemies = 1;
+  if (currentTurn >= 5) totalEnemies = Math.random() < 0.3 ? 2 : 1;
+  if (currentTurn >= 10) totalEnemies = 2;
+  if (currentTurn >= 15) totalEnemies = 2 + (Math.random() < 0.3 ? 1 : 0);
+  if (currentTurn >= 20) totalEnemies = 3;
+  if (currentTurn >= 25) totalEnemies = 3 + (Math.random() < 0.4 ? 1 : 0);
+  if (currentTurn >= 30) totalEnemies = 4;
+  if (currentTurn >= 35) totalEnemies = 4 + (Math.random() < 0.5 ? 1 : 0);
+  if (currentTurn >= 40) totalEnemies = 5;
+
+  // Düşmanları rastgele koridorlara dağıt
+  for (let i = 0; i < totalEnemies; i++) {
     let enemyIndex = Math.min(Math.floor(currentTurn / 3.5), enemyTypes.length - 1);
     let template = enemyTypes[enemyIndex];
     let enemy = JSON.parse(JSON.stringify(template));
     
     let boost = Math.floor(currentTurn / 3);
     enemy.hp += boost * 20;
-    enemy.dmg += boost * 7;
+    enemy.ad += boost * 7;
+    enemy.ap += boost * 5;
     enemy.armor += boost * 4;
     enemy.mr += boost * 3;
+    enemy.maxHp = enemy.hp;
     
-    enemies.push(enemy);
+    let randomLane = Math.floor(Math.random() * 3);
+    lanes[randomLane].push(enemy);
   }
 
-  selectedEnemyIndex = 0;
-  
-  if (enemyCount > 1) {
-    addLog(`⚔️ Tur ${currentTurn}: ${enemyCount} düşmanla karşılaşıyorsun!`);
+  if (totalEnemies > 1) {
+    addLog(`⚔️ Tur ${currentTurn}: ${totalEnemies} düşmanla karşılaşıyorsun!`);
   } else {
-    addLog(`⚔️ Tur ${currentTurn}: ${enemies[0].name} ile karşılaşıyorsun!`);
+    addLog(`⚔️ Tur ${currentTurn}: Savaş devam ediyor!`);
   }
   
   renderBattle();
@@ -2893,6 +2875,16 @@ function updateCharacterDrawerVisibility() {
   }
 }
 
+document.addEventListener('click', (e) => {
+  const tooltip = document.getElementById('tooltip');
+  if (tooltip && 
+      tooltip.style.display === 'block' && 
+      !e.target.closest('.shopItem') && 
+      !e.target.closest('.itemSlot')) {
+    hideTooltip();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   const drawerBtn = document.getElementById('characterDrawerBtn');
   const logBtn = document.getElementById('logToggleBtn');
@@ -2945,4 +2937,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ LOGİN EKRANI
   updateLoginScreen();
 });
-
