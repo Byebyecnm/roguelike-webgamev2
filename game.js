@@ -850,24 +850,9 @@ function renderBattle() {
   area.innerHTML = "";
 
   const laneColors = [
-    { 
-      border: '#00bcd4', 
-      glow: 'rgba(0, 188, 212, 0.8)', 
-      glowSubtle: 'rgba(0, 188, 212, 0.15)',
-      name: 'Buz Mavisi' 
-    },
-    { 
-      border: '#ffd700', 
-      glow: 'rgba(255, 215, 0, 0.8)', 
-      glowSubtle: 'rgba(255, 215, 0, 0.15)',
-      name: 'Altın' 
-    },
-    { 
-      border: '#4caf50', 
-      glow: 'rgba(76, 175, 80, 0.8)', 
-      glowSubtle: 'rgba(76, 175, 80, 0.15)',
-      name: 'Yeşim' 
-    }
+    { border: '#00bcd4', glow: 'rgba(0, 188, 212, 0.8)', glowSubtle: 'rgba(0, 188, 212, 0.15)', name: 'Buz Mavisi' },
+    { border: '#ffd700', glow: 'rgba(255, 215, 0, 0.8)', glowSubtle: 'rgba(255, 215, 0, 0.15)', name: 'Altın' },
+    { border: '#4caf50', glow: 'rgba(76, 175, 80, 0.8)', glowSubtle: 'rgba(76, 175, 80, 0.15)', name: 'Yeşim' }
   ];
 
   const container = document.createElement("div");
@@ -885,35 +870,28 @@ function renderBattle() {
     laneDiv.style.setProperty('--lane-glow-subtle', color.glowSubtle);
     laneDiv.style.borderColor = color.border;
     
-    // ✅ TAMAMINA TIKLANABİLİR - Event delegation
     laneDiv.onclick = (e) => {
-      // Önceki seçimi kaldır
-      const oldSelected = selectedLane;
-      selectedLane = laneIndex;
-      
-      // Tıklama feedback
-      laneDiv.classList.add('clicked');
-      setTimeout(() => {
-        laneDiv.classList.remove('clicked');
-      }, 150);
-      
-      // ✅ Seçim değiştiyse log ekle
-      if (oldSelected !== laneIndex) {
-        const colorName = color.name;
-        addLog(`📍 ${colorName} koridor seçildi!`);
+      // Eğer düşman kartına tıklanmadıysa
+      if (!e.target.closest('.enemy-card')) {
+        const oldSelected = selectedLane;
+        selectedLane = laneIndex;
+        
+        laneDiv.classList.add('clicked');
+        setTimeout(() => laneDiv.classList.remove('clicked'), 150);
+        
+        if (oldSelected !== laneIndex) {
+          addLog(`📍 ${color.name} koridor seçildi!`);
+        }
+        
+        renderBattle();
       }
-      
-      // Render
-      renderBattle();
     };
     
-    // Dekoratif üst çizgi
     const topLine = document.createElement("div");
     topLine.className = "lane-top-line";
     topLine.style.background = color.border;
     laneDiv.appendChild(topLine);
 
-    // ✅ DÜŞMANLARI GÖSTER
     if (lane.length > 0) {
       lane.forEach((enemy, enemyIndex) => {
         const enemyCard = document.createElement("div");
@@ -940,23 +918,24 @@ function renderBattle() {
           align-items: center;
           gap: 10px;
           position: relative;
+          cursor: pointer;
         `;
         
-        // Hover - kartın kendisine değil lane'e odaklan
-        enemyCard.onmouseenter = (e) => {
+        // ✅ MOBİLDE DÜŞMANA TIKLANINCA FLOATING PANEL AÇ
+        enemyCard.onclick = (e) => {
           e.stopPropagation();
-          if (!isFirst || !isSelected) {
-            enemyCard.style.transform = 'translateY(-3px) scale(1.01)';
+          
+          // Koridoru seç
+          selectedLane = laneIndex;
+          
+          // Mobilde floating panel aç
+          if (window.innerWidth <= 768) {
+            showFloatingActionPanel(enemy, laneIndex, enemyIndex);
           }
-        };
-        enemyCard.onmouseleave = (e) => {
-          e.stopPropagation();
-          if (!isFirst || !isSelected) {
-            enemyCard.style.transform = '';
-          }
+          
+          renderBattle();
         };
         
-        // ✅ EN ÖNDEKİ İŞARETİ
         if (isFirst) {
           const badge = document.createElement("div");
           badge.textContent = "🎯";
@@ -980,7 +959,6 @@ function renderBattle() {
           enemyCard.appendChild(badge);
         }
         
-        // DÜŞMAN RESMİ
         const enemyImg = document.createElement("img");
         enemyImg.src = enemy.img;
         enemyImg.style.cssText = `
@@ -990,10 +968,10 @@ function renderBattle() {
           border-radius: 10px;
           border: 3px solid ${isFirst ? color.border : '#555'};
           ${isFirst ? `box-shadow: 0 0 25px ${color.glow};` : 'box-shadow: 0 2px 8px rgba(0,0,0,0.5);'}
+          pointer-events: none;
         `;
         enemyCard.appendChild(enemyImg);
         
-        // DÜŞMAN ADI
         const nameDiv = document.createElement("div");
         nameDiv.textContent = enemy.name;
         nameDiv.style.cssText = `
@@ -1003,10 +981,10 @@ function renderBattle() {
           text-align: center;
           text-shadow: ${isFirst ? `0 0 10px ${color.glow}` : '0 2px 4px rgba(0,0,0,0.8)'};
           letter-spacing: 0.5px;
+          pointer-events: none;
         `;
         enemyCard.appendChild(nameDiv);
         
-        // HP BARI
         const hpContainer = document.createElement("div");
         hpContainer.style.cssText = `
           width: 100%;
@@ -1015,6 +993,7 @@ function renderBattle() {
           overflow: hidden;
           border: 2px solid #333;
           box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+          pointer-events: none;
         `;
         
         const hpBar = document.createElement("div");
@@ -1030,7 +1009,6 @@ function renderBattle() {
         hpContainer.appendChild(hpBar);
         enemyCard.appendChild(hpContainer);
         
-        // HP YAZISI
         const hpText = document.createElement("div");
         hpText.textContent = `❤️ ${enemy.hp}`;
         hpText.style.cssText = `
@@ -1039,10 +1017,10 @@ function renderBattle() {
           font-size: 14px;
           text-align: center;
           text-shadow: 0 0 8px rgba(231,76,60,0.8);
+          pointer-events: none;
         `;
         enemyCard.appendChild(hpText);
         
-        // HASAR BİLGİSİ
         let damageInfo = "";
         if (enemy.ad > 0 && enemy.ap > 0) {
           damageInfo = `<span style="color:#ff5722;">⚔️${enemy.ad}</span> <span style="color:#9c27b0;">🔮${enemy.ap}</span>`;
@@ -1062,11 +1040,11 @@ function renderBattle() {
             text-align: center;
             margin-top: 4px;
             font-weight: 600;
+            pointer-events: none;
           `;
           enemyCard.appendChild(dmgDiv);
         }
         
-        // ZIRH/MR
         const defenseDiv = document.createElement("div");
         defenseDiv.innerHTML = `<span style="color:#90a4ae;">🛡️${enemy.armor}</span> <span style="color:#7e57c2;">🔰${enemy.mr}</span>`;
         defenseDiv.style.cssText = `
@@ -1074,6 +1052,7 @@ function renderBattle() {
           color: #777;
           text-align: center;
           margin-top: 2px;
+          pointer-events: none;
         `;
         enemyCard.appendChild(defenseDiv);
         
@@ -2514,3 +2493,193 @@ function trackTurnComplete() {
 document.addEventListener('DOMContentLoaded', () => {
   updateLoginScreen();
 });
+
+// ✅ FLOATING ACTION PANEL GÖSTER
+function showFloatingActionPanel(enemy, laneIndex, enemyIndex) {
+  // Mevcut paneli kaldır
+  hideFloatingActionPanel();
+  
+  // Overlay oluştur
+  const overlay = document.createElement('div');
+  overlay.className = 'floating-action-overlay';
+  overlay.id = 'floatingActionOverlay';
+  overlay.onclick = hideFloatingActionPanel;
+  document.body.appendChild(overlay);
+  
+  setTimeout(() => overlay.classList.add('active'), 10);
+  
+  // Panel oluştur
+  const panel = document.createElement('div');
+  panel.className = 'floating-action-panel';
+  panel.id = 'floatingActionPanel';
+  
+  // Skill maliyeti hesapla
+  let skillCost = player.skillCost;
+  if (player.name === "Fern") skillCost = Math.floor(skillCost * 0.8);
+  if (companion && companion.bonus.type === "intelligence") skillCost = Math.floor(skillCost * 0.80);
+  if (player.prismaticMana > 0) skillCost = Math.floor(skillCost * (1 - player.prismaticMana));
+  
+  const canUseSkill = player.mana >= skillCost;
+  
+  panel.innerHTML = `
+    <div class="floating-action-panel-header">
+      <div class="floating-action-panel-title">🎯 Hedef Seçildi</div>
+      <div class="floating-action-panel-target">${enemy.name} (${enemy.hp} HP)</div>
+    </div>
+    <div class="floating-action-buttons">
+      <button class="floating-action-btn attack" id="floatingAttackBtn">
+        ⚔️<br>Saldır
+      </button>
+      <button class="floating-action-btn skill" id="floatingSkillBtn" ${!canUseSkill ? 'disabled' : ''}>
+        🔮<br>Skill
+        ${skillCost > 0 ? `<span class="cost-badge">${skillCost}</span>` : ''}
+      </button>
+      <button class="floating-action-btn defend" id="floatingDefendBtn">
+        🛡️<br>Savun
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(panel);
+  
+  setTimeout(() => panel.classList.add('active'), 10);
+  
+  // Button events
+  document.getElementById('floatingAttackBtn').onclick = () => {
+    hideFloatingActionPanel();
+    performAttack();
+  };
+  
+  document.getElementById('floatingSkillBtn').onclick = () => {
+    if (canUseSkill) {
+      hideFloatingActionPanel();
+      performSkill();
+    }
+  };
+  
+  document.getElementById('floatingDefendBtn').onclick = () => {
+    hideFloatingActionPanel();
+    performDefend();
+  };
+}
+
+// ✅ FLOATING PANEL KAPAT
+function hideFloatingActionPanel() {
+  const panel = document.getElementById('floatingActionPanel');
+  const overlay = document.getElementById('floatingActionOverlay');
+  
+  if (panel) {
+    panel.classList.remove('active');
+    setTimeout(() => panel.remove(), 300);
+  }
+  
+  if (overlay) {
+    overlay.classList.remove('active');
+    setTimeout(() => overlay.remove(), 300);
+  }
+}
+
+// ✅ SALDIRI GERÇEKLEŞTIR
+function performAttack() {
+  if (lanes[selectedLane].length === 0) {
+    addLog("⚠️ Bu koridor boş!");
+    return;
+  }
+  
+  isDefending = false;
+  const enemyBeforeHp = lanes[selectedLane][0].hp;
+  
+  dealDamage(player, lanes[selectedLane][0], false);
+  
+  const damageDealt = enemyBeforeHp - lanes[selectedLane][0].hp;
+  highlightSelectedLane();
+  showAttackAnimation(selectedLane, 0, damageDealt);
+
+  if (lanes[selectedLane][0].hp <= 0) {
+    onEnemyDefeated(selectedLane, 0);
+  } else {
+    enemyTurn();
+    nextTurn();
+  }
+}
+
+// ✅ SKILL GERÇEKLEŞTIR
+function performSkill() {
+  if (lanes[selectedLane].length === 0) {
+    addLog("⚠️ Bu koridor boş!");
+    return;
+  }
+  
+  let cost = player.skillCost;
+  if (player.name === "Fern") cost = Math.floor(cost * 0.8);
+  if (companion && companion.bonus.type === "intelligence") cost = Math.floor(cost * 0.80);
+  if (player.prismaticMana > 0) cost = Math.floor(cost * (1 - player.prismaticMana));
+
+  if (player.mana < cost) {
+    addLog("⚠️ Yeterli mana yok!");
+    return;
+  }
+
+  isDefending = false;
+  player.mana -= cost;
+  trackSkillUse();
+
+  if (player.name === "Kara Kedi") {
+    addLog(`😼 KEDİ KRİZİM! Koridor ${selectedLane + 1} temizlendi!`);
+    
+    lanes[selectedLane].forEach((enemy, idx) => {
+      showAttackAnimation(selectedLane, idx, enemy.hp);
+      gold += enemy.gold;
+      trackKill();
+      trackGold(enemy.gold);
+    });
+    
+    lanes[selectedLane] = [];
+  } else {
+    const enemyBeforeHp = lanes[selectedLane][0].hp;
+    
+    dealDamage(player, lanes[selectedLane][0], true);
+    
+    const damageDealt = enemyBeforeHp - lanes[selectedLane][0].hp;
+    highlightSelectedLane();
+    showAttackAnimation(selectedLane, 0, damageDealt);
+
+    if (lanes[selectedLane][0].hp <= 0) {
+      onEnemyDefeated(selectedLane, 0);
+    } else {
+      enemyTurn();
+      nextTurn();
+    }
+  }
+  
+  let allEmpty = lanes.every(lane => lane.length === 0);
+  if (allEmpty) {
+    currentTurn++;
+    trackTurnComplete();
+    
+    if (berserkerTurnsLeft > 0) {
+      berserkerTurnsLeft--;
+      if (berserkerTurnsLeft === 0) addLog("😌 Berserker bitti.");
+    }
+    
+    updateUI();
+    startBattle();
+  } else {
+    renderBattle();
+    updateUI();
+  }
+}
+
+// ✅ SAVUNMA GERÇEKLEŞTIR
+function performDefend() {
+  isDefending = true;
+  addLog("🛡️ Savunma pozisyonu aldın!");
+  
+  enemyTurn();
+  nextTurn();
+}
+
+// ✅ Mevcut desktop butonları (sadece desktop'ta çalışacak)
+document.getElementById("attackBtn").onclick = performAttack;
+document.getElementById("skillBtn").onclick = performSkill;
+document.getElementById("defendBtn").onclick = performDefend;
