@@ -445,6 +445,7 @@ function startGame(char) {
   renderInventory();
   renderAchievements();
   startBattle();
+  updateCharacterDrawerVisibility();
 }
 
 // ==== UI ====
@@ -478,6 +479,10 @@ function updateUI() {
     shopBtn.style.borderColor = "#FFD700";
     shopBtn.style.boxShadow = "0 2px 8px rgba(194, 139, 75, 0.4)";
     shopBtn.title = `Dükkan (35g) - ${5 - (currentTurn - lastFreeShopTurn)} tur sonra bedava`;
+  }
+const drawer = document.getElementById('characterDrawer');
+  if (drawer && drawer.classList.contains('active')) {
+    updateDrawerContent();
   }
 }
 
@@ -2683,3 +2688,219 @@ function performDefend() {
 document.getElementById("attackBtn").onclick = performAttack;
 document.getElementById("skillBtn").onclick = performSkill;
 document.getElementById("defendBtn").onclick = performDefend;
+
+// ========== MOBİL DRAWER FONKSİYONLARI ==========
+
+function toggleCharacterDrawer() {
+  const drawer = document.getElementById('characterDrawer');
+  const btn = document.getElementById('characterDrawerBtn');
+  
+  if (drawer.classList.contains('active')) {
+    drawer.classList.remove('active');
+    btn.classList.remove('active');
+  } else {
+    drawer.classList.add('active');
+    btn.classList.add('active');
+    updateDrawerContent();
+  }
+}
+
+function updateDrawerContent() {
+  const drawerContent = document.getElementById('drawerContent');
+  
+  if (!player) {
+    drawerContent.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Oyun başlamadı</p>';
+    return;
+  }
+  
+  let html = `
+    <div class="drawer-character-section">
+      <img src="${player.img}" class="drawer-portrait" alt="${player.name}">
+      <div class="drawer-bars-stats">
+        <div style="font-size:16px;font-weight:bold;color:gold;margin-bottom:8px;">${player.name}</div>
+        
+        <div class="drawer-bar-container">
+          <div class="drawer-bar-label">❤️ ${player.hp} / ${player.maxHp}</div>
+          <div class="drawer-bar">
+            <div class="drawer-bar-fill drawer-hp-fill" style="width:${(player.hp/player.maxHp*100)}%;"></div>
+          </div>
+        </div>
+        
+        <div class="drawer-bar-container">
+          <div class="drawer-bar-label">💙 ${player.mana} / ${player.maxMana}</div>
+          <div class="drawer-bar">
+            <div class="drawer-bar-fill drawer-mana-fill" style="width:${(player.mana/player.maxMana*100)}%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  html += `
+    <div class="drawer-stats">
+      <div class="drawer-stat-item">
+        ⚔️ AD<br><span class="drawer-stat-value">${player.ad}</span>
+      </div>
+      <div class="drawer-stat-item">
+        🔮 AP<br><span class="drawer-stat-value">${player.ap}</span>
+      </div>
+      <div class="drawer-stat-item">
+        🛡️ Zırh<br><span class="drawer-stat-value">${player.armor}</span>
+      </div>
+      <div class="drawer-stat-item">
+        🔰 MR<br><span class="drawer-stat-value">${player.mr}</span>
+      </div>
+      <div class="drawer-stat-item">
+        💥 Kritik<br><span class="drawer-stat-value">${player.critChance}%</span>
+      </div>
+      <div class="drawer-stat-item">
+        💉 Can Çalma<br><span class="drawer-stat-value">${Math.floor(player.lifesteal*100)}%</span>
+      </div>
+    </div>
+  `;
+  
+  html += `
+    <div class="drawer-items">
+      <div class="drawer-section-title">🎒 Eşyalar</div>
+      <div class="drawer-item-grid">
+  `;
+  
+  passiveItems.forEach(item => {
+    html += `
+      <div class="drawer-item-slot passive" title="${item.name}">
+        <img src="${item.img}" alt="${item.name}">
+      </div>
+    `;
+  });
+  
+  Object.values(inventory).forEach(entry => {
+    html += `
+      <div class="drawer-item-slot" title="${entry.item.name}">
+        <img src="${entry.item.img}" alt="${entry.item.name}">
+        ${entry.count > 1 ? `<span class="stack-count">${entry.count}</span>` : ''}
+      </div>
+    `;
+  });
+  
+  html += `
+      </div>
+    </div>
+  `;
+  
+  html += `
+    <div class="drawer-features">
+      <div class="drawer-section-title">✨ Özellikler</div>
+  `;
+  
+  html += `
+    <div class="drawer-feature-item passive">
+      <img src="${player.passive.icon}" class="drawer-feature-icon">
+      <div class="drawer-feature-text">
+        <div class="drawer-feature-name">🎭 Karakter Pasifi</div>
+        <div class="drawer-feature-desc">${player.passive.text}</div>
+      </div>
+    </div>
+  `;
+  
+  if (companion) {
+    html += `
+      <div class="drawer-feature-item companion">
+        <img src="${companion.img}" class="drawer-feature-icon">
+        <div class="drawer-feature-text">
+          <div class="drawer-feature-name">🎖️ ${companion.name}</div>
+          <div class="drawer-feature-desc">${companion.bonus.text}</div>
+        </div>
+      </div>
+    `;
+  }
+  
+  selectedAugments.forEach(augId => {
+    let aug = null;
+    for (let tier in augments) {
+      const found = augments[tier].find(a => a.id === augId);
+      if (found) {
+        aug = found;
+        break;
+      }
+    }
+    
+    if (aug) {
+      html += `
+        <div class="drawer-feature-item augment">
+          <div class="drawer-feature-icon" style="display:flex;align-items:center;justify-content:center;font-size:24px;background:#2a2a2a;">
+            ${aug.icon}
+          </div>
+          <div class="drawer-feature-text">
+            <div class="drawer-feature-name">✨ ${aug.name}</div>
+            <div class="drawer-feature-desc">${aug.desc}</div>
+          </div>
+        </div>
+      `;
+    }
+  });
+  
+  html += `
+    </div>
+  `;
+  
+  drawerContent.innerHTML = html;
+}
+
+function updateCharacterDrawerVisibility() {
+  const btn = document.getElementById('characterDrawerBtn');
+  const logBtn = document.getElementById('logToggleBtn');
+  
+  if (window.innerWidth <= 768) {
+    if (player && gameScreen.classList.contains('active')) {
+      btn.style.display = 'flex';
+      logBtn.style.display = 'flex';
+    } else {
+      btn.style.display = 'none';
+      logBtn.style.display = 'none';
+    }
+  } else {
+    btn.style.display = 'none';
+    logBtn.style.display = 'none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const drawerBtn = document.getElementById('characterDrawerBtn');
+  const logBtn = document.getElementById('logToggleBtn');
+  const drawer = document.getElementById('characterDrawer');
+  const rightPanel = document.querySelector('.rightPanel');
+  
+  if (drawerBtn) {
+    drawerBtn.onclick = toggleCharacterDrawer;
+  }
+  
+  if (drawer) {
+    drawer.onclick = (e) => {
+      if (e.target === drawer) {
+        drawer.classList.remove('active');
+        drawerBtn.classList.remove('active');
+      }
+    };
+  }
+  
+  if (logBtn && rightPanel) {
+    logBtn.onclick = () => {
+      rightPanel.classList.toggle('active');
+      logBtn.classList.toggle('active');
+      logBtn.textContent = rightPanel.classList.contains('active') ? '✖️' : '📜';
+    };
+    
+    document.addEventListener('click', (e) => {
+      if (rightPanel.classList.contains('active') && 
+          !rightPanel.contains(e.target) && 
+          e.target !== logBtn) {
+        rightPanel.classList.remove('active');
+        logBtn.classList.remove('active');
+        logBtn.textContent = '📜';
+      }
+    });
+  }
+  
+  window.addEventListener('resize', updateCharacterDrawerVisibility);
+  updateCharacterDrawerVisibility();
+});
