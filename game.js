@@ -1087,9 +1087,24 @@ function renderBattle() {
   area.appendChild(container);
 }
 
-// ✅ SALDIRI ANİMASYONU
+// ✅ Seçili koridoru parlat
+function highlightSelectedLane() {
+  const lanes = document.querySelectorAll('.lane');
+  const selectedLaneDiv = lanes[selectedLane];
+  
+  if (selectedLaneDiv) {
+    selectedLaneDiv.style.transition = 'none';
+    selectedLaneDiv.style.boxShadow = '0 0 60px var(--lane-glow), 0 0 100px var(--lane-glow), inset 0 0 50px var(--lane-glow)';
+    
+    setTimeout(() => {
+      selectedLaneDiv.style.transition = 'all 0.3s ease';
+      selectedLaneDiv.style.boxShadow = '';
+    }, 300);
+  }
+}
+
+// ✅ Saldırı animasyonu (mevcut)
 function showAttackAnimation(laneIndex, enemyIndex, damage) {
-  // Koridor shake
   const lanes = document.querySelectorAll('.lane');
   const targetLane = lanes[laneIndex];
   
@@ -1097,27 +1112,23 @@ function showAttackAnimation(laneIndex, enemyIndex, damage) {
     targetLane.classList.add('attacking');
     setTimeout(() => {
       targetLane.classList.remove('attacking');
-    }, 200);
+    }, 250);
   }
   
-  // Düşman kartı flash + damage number
   const enemyCards = targetLane.querySelectorAll('.enemy-card');
   const targetCard = enemyCards[enemyIndex];
   
   if (targetCard) {
-    // Flash efekti
     targetCard.classList.add('flash');
     setTimeout(() => {
       targetCard.classList.remove('flash');
-    }, 100);
+    }, 120);
     
-    // Damage number
     const damageNum = document.createElement('div');
     damageNum.className = 'damage-number';
     damageNum.textContent = `-${Math.floor(damage)}`;
     targetCard.appendChild(damageNum);
     
-    // Animasyon bitince kaldır
     setTimeout(() => {
       damageNum.remove();
     }, 1000);
@@ -1237,15 +1248,14 @@ document.getElementById("attackBtn").onclick = () => {
   
   isDefending = false;
   
-  // ✅ SALDIRI ÖNCESİ HP KAYDET
   const enemyBeforeHp = lanes[selectedLane][0].hp;
   
   dealDamage(player, lanes[selectedLane][0], false);
   
-  // ✅ HASAR MİKTARINI HESAPLA
   const damageDealt = enemyBeforeHp - lanes[selectedLane][0].hp;
   
-  // ✅ ANİMASYONLARI ÇALIŞTIR
+  // ✅ SALDIRI PARLATMA
+  highlightSelectedLane();
   showAttackAnimation(selectedLane, 0, damageDealt);
 
   if (lanes[selectedLane][0].hp <= 0) {
