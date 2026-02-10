@@ -710,9 +710,10 @@ function buyItem(item, overlay) {
   if (gold < item.price) return;
 
   gold -= item.price;
-
-  // ✅ ITEM ALIMI TAKIBI EKLE
   trackItemBought();
+
+  // ✅ MOBİL TOOLTIP KAPATMA
+  hideTooltip();
 
   if (item.usable) {
     if (!inventory[item.id]) {
@@ -785,6 +786,7 @@ function startBattle() {
 
   applyTurnBonuses();
 
+  // ✅ AUGMENT VE COMPANION KONTROLÜ - KORİDOR SIFIRLAMADAN ÖNCE
   if (currentTurn % 10 === 0 && currentTurn > 0 && currentTurn !== 50) {
     showAugmentSelection();
     return;
@@ -795,51 +797,54 @@ function startBattle() {
     return;
   }
 
-  // ✅ KORİDORLARI SIFIRLA
-  lanes = [[], [], []];
-  selectedLane = 0;
-
-  // Düşman sayısı (turdan turda artıyor)
-  let totalEnemies = 1;
-  if (currentTurn >= 5) totalEnemies = Math.random() < 0.3 ? 2 : 1;
-  if (currentTurn >= 10) totalEnemies = 2;
-  if (currentTurn >= 15) totalEnemies = 2 + (Math.random() < 0.3 ? 1 : 0);
-  if (currentTurn >= 20) totalEnemies = 3;
-  if (currentTurn >= 25) totalEnemies = 3 + (Math.random() < 0.4 ? 1 : 0);
-  if (currentTurn >= 30) totalEnemies = 4;
-  if (currentTurn >= 35) totalEnemies = 4 + (Math.random() < 0.5 ? 1 : 0);
-  if (currentTurn >= 40) totalEnemies = 5;
-
-  // Düşmanları rastgele koridorlara dağıt
-  for (let i = 0; i < totalEnemies; i++) {
-    let enemyIndex = Math.min(Math.floor(currentTurn / 3.5), enemyTypes.length - 1);
-    let template = enemyTypes[enemyIndex];
-    let enemy = JSON.parse(JSON.stringify(template));
+  // ✅ SADECE YENİ TUR BAŞLARKEN KORİDORLARI SIFIRLA
+  // ✅ currentTurn === 1 VEYA augment/companion seçimi SONRASI
+  const shouldResetLanes = 
+    currentTurn === 1 || 
+    lanes.every(lane => lane.length === 0);
+  
+  if (shouldResetLanes) {
+    lanes = [[], [], []];
+    selectedLane = 0;
     
-    // Tur ilerledikçe düşmanlar güçlenir
-    let boost = Math.floor(currentTurn / 3);
-    enemy.hp += boost * 20;
-    enemy.ad += boost * 7;
-    enemy.ap += boost * 5;
-    enemy.armor += boost * 4;
-    enemy.mr += boost * 3;
+    // Düşman sayısı
+    let totalEnemies = 1;
+    if (currentTurn >= 5) totalEnemies = Math.random() < 0.3 ? 2 : 1;
+    if (currentTurn >= 10) totalEnemies = 2;
+    if (currentTurn >= 15) totalEnemies = 2 + (Math.random() < 0.3 ? 1 : 0);
+    if (currentTurn >= 20) totalEnemies = 3;
+    if (currentTurn >= 25) totalEnemies = 3 + (Math.random() < 0.4 ? 1 : 0);
+    if (currentTurn >= 30) totalEnemies = 4;
+    if (currentTurn >= 35) totalEnemies = 4 + (Math.random() < 0.5 ? 1 : 0);
+    if (currentTurn >= 40) totalEnemies = 5;
 
-    // ✅ MAX HP KAYDET (HP barı için)
-    enemy.maxHp = enemy.hp;
-    
-    // Rastgele koridora ekle
-    let randomLane = Math.floor(Math.random() * 3);
-    lanes[randomLane].push(enemy);
+    // Düşmanları koridorlara dağıt
+    for (let i = 0; i < totalEnemies; i++) {
+      let enemyIndex = Math.min(Math.floor(currentTurn / 3.5), enemyTypes.length - 1);
+      let template = enemyTypes[enemyIndex];
+      let enemy = JSON.parse(JSON.stringify(template));
+      
+      let boost = Math.floor(currentTurn / 3);
+      enemy.hp += boost * 20;
+      enemy.ad += boost * 7;
+      enemy.ap += boost * 5;
+      enemy.armor += boost * 4;
+      enemy.mr += boost * 3;
+      enemy.maxHp = enemy.hp;
+      
+      let randomLane = Math.floor(Math.random() * 3);
+      lanes[randomLane].push(enemy);
+    }
+
+    addLog(`⚔️ Tur ${currentTurn}: Savaş başladı!`);
   }
-
-  addLog(`⚔️ Tur ${currentTurn}: Savaş başladı!`);
   
   renderBattle();
   checkAchievements();
 
-    setTimeout(() => {
-    const lanes = document.querySelectorAll('.lane');
-    const selectedLaneDiv = lanes[selectedLane];
+  setTimeout(() => {
+    const lanesDivs = document.querySelectorAll('.lane');
+    const selectedLaneDiv = lanesDivs[selectedLane];
     
     if (selectedLaneDiv) {
       selectedLaneDiv.classList.add('turn-start');
@@ -1577,7 +1582,6 @@ function onEnemyDefeated(laneIndex, enemyIndex) {
   trackGold(defeatedEnemy.gold);
   addLog(`🏆 ${defeatedEnemy.name} öldü! +${defeatedEnemy.gold}g`);
   
-  // Shinigami bonusu
   if (companion && companion.bonus.type === "death") {
     let hpRestore = Math.floor(player.maxHp * 0.2);
     let manaRestore = Math.floor(player.maxMana * 0.2);
@@ -1586,14 +1590,21 @@ function onEnemyDefeated(laneIndex, enemyIndex) {
     addLog(`💀 Shinigami! +${hpRestore} HP, +${manaRestore} Mana`);
   }
   
-  // Düşmanı koridordan SİL (splice ile öndeki kalkar, arkadaki öne geçer)
   lanes[laneIndex].splice(enemyIndex, 1);
   
-  // TÜM koridorlar boşaldı mı?
+  // ✅ SEÇİLİ KORİDORU KORU
+  // Sadece koridorda düşman kalmadıysa başka koridora geç
+  if (lanes[laneIndex].length === 0) {
+    // Başka dolu koridor var mı?
+    let nextLane = lanes.findIndex(lane => lane.length > 0);
+    if (nextLane !== -1) {
+      selectedLane = nextLane;
+    }
+  }
+  
   let allEmpty = lanes.every(lane => lane.length === 0);
   
   if (allEmpty) {
-    // Yeni tur
     currentTurn++;
     trackTurnComplete();
     
@@ -1713,37 +1724,67 @@ document.addEventListener("click", (e) => {
 });
 
 function attachItemHover(element, item) {
+  // ✅ DESKTOP - MOUSE HOVER
   element.addEventListener("mouseenter", () => {
-    element.classList.add("itemHover");
+    if (window.innerWidth > 768) {
+      element.classList.add("itemHover");
+      
+      let content = `<b>${item.name}</b><br>`;
+      if (item.price) content += `<span style="color:gold">${item.price}g</span><br>`;
+      if (item.desc) content += `<span style="color:#aaa;font-size:11px;">${item.desc}</span><br>`;
+      
+      if (item.usable) {
+        content += `<span style="color:#4caf50;">✓ Kullanılabilir</span>`;
+      } else {
+        content += `<span style="color:#9c27b0;">⚡ Pasif Eşya</span>`;
+      }
 
-    let content = `<b>${item.name}</b><br>`;
-    
-    if (item.price) {
-      content += `<span style="color:gold">${item.price}g</span><br>`;
+      tooltip.innerHTML = content;
+      tooltip.style.display = "block";
     }
-    
-    if (item.desc) {
-      content += `<span style="color:#aaa;font-size:11px;">${item.desc}</span><br>`;
-    }
-    
-    if (item.usable) {
-      content += `<span style="color:#4caf50;">✓ Kullanılabilir</span>`;
-    } else {
-      content += `<span style="color:#9c27b0;">⚡ Pasif Eşya</span>`;
-    }
-
-    tooltip.innerHTML = content;
-    tooltip.style.display = "block";
   });
 
   element.addEventListener("mousemove", (e) => {
-    tooltip.style.left = e.pageX + 15 + "px";
-    tooltip.style.top = e.pageY + 15 + "px";
+    if (window.innerWidth > 768) {
+      tooltip.style.left = e.pageX + 15 + "px";
+      tooltip.style.top = e.pageY + 15 + "px";
+    }
   });
 
   element.addEventListener("mouseleave", () => {
     element.classList.remove("itemHover");
     hideTooltip();
+  });
+  
+  // ✅ MOBİL - TOUCH/CLICK TOOLTIP
+  element.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+      e.stopPropagation();
+      
+      // Eğer tooltip zaten açıksa kapat
+      if (tooltip.style.display === "block") {
+        hideTooltip();
+        return;
+      }
+      
+      let content = `<b>${item.name}</b><br>`;
+      if (item.price) content += `<span style="color:gold">${item.price}g</span><br>`;
+      if (item.desc) content += `<span style="color:#aaa;font-size:11px;">${item.desc}</span><br>`;
+      
+      if (item.usable) {
+        content += `<span style="color:#4caf50;">✓ Kullanılabilir</span>`;
+      } else {
+        content += `<span style="color:#9c27b0;">⚡ Pasif Eşya</span>`;
+      }
+
+      tooltip.innerHTML = content;
+      tooltip.style.display = "block";
+      tooltip.style.position = "fixed";
+      tooltip.style.top = "50%";
+      tooltip.style.left = "50%";
+      tooltip.style.transform = "translate(-50%, -50%)";
+      tooltip.style.zIndex = "10000";
+    }
   });
 }
 
@@ -2503,6 +2544,27 @@ document.addEventListener('DOMContentLoaded', () => {
 function showFloatingActionPanel(enemy, laneIndex, enemyIndex) {
   hideFloatingActionPanel();
   
+  // ✅ MOBİL BAŞLIK GÖSTER
+  if (window.innerWidth <= 768) {
+    const header = document.getElementById('mobileBattleHeader');
+    const portrait = document.getElementById('mobileBattlePortrait');
+    const name = document.getElementById('mobileBattleName');
+    const hpBar = document.getElementById('mobileBattleHp');
+    const hpText = document.getElementById('mobileBattleHpText');
+    const manaBar = document.getElementById('mobileBattleMana');
+    const manaText = document.getElementById('mobileBattleManaText');
+    
+    if (header && player) {
+      portrait.src = player.img;
+      name.textContent = player.name;
+      hpBar.style.width = (player.hp / player.maxHp * 100) + '%';
+      hpText.textContent = `❤️ ${player.hp}/${player.maxHp}`;
+      manaBar.style.width = (player.mana / player.maxMana * 100) + '%';
+      manaText.textContent = `💙 ${player.mana}/${player.maxMana}`;
+      header.classList.add('active');
+    }
+  }
+  
   const overlay = document.createElement('div');
   overlay.className = 'floating-action-overlay';
   overlay.id = 'floatingActionOverlay';
@@ -2567,6 +2629,7 @@ function showFloatingActionPanel(enemy, laneIndex, enemyIndex) {
 function hideFloatingActionPanel() {
   const panel = document.getElementById('floatingActionPanel');
   const overlay = document.getElementById('floatingActionOverlay');
+  const header = document.getElementById('mobileBattleHeader');
   
   if (panel) {
     panel.classList.remove('active');
@@ -2576,6 +2639,11 @@ function hideFloatingActionPanel() {
   if (overlay) {
     overlay.classList.remove('active');
     setTimeout(() => overlay.remove(), 300);
+  }
+  
+  // ✅ MOBİL BAŞLIK GİZLE
+  if (header) {
+    header.classList.remove('active');
   }
 }
 
@@ -2877,3 +2945,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ LOGİN EKRANI
   updateLoginScreen();
 });
+
