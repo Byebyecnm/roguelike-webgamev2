@@ -8,9 +8,7 @@
 </head>
 <body>
 
-<div id="loginScreen" class="screen active">
-  <!-- updateLoginScreen() fonksiyonu tarafından doldurulacak -->
-</div>
+<div id="loginScreen" class="screen active"></div>
 
 <div id="characterSelectScreen" class="screen">
   <h2>Karakterini Seç</h2>
@@ -22,7 +20,6 @@
 </div>
 
 <div id="gameScreen" class="screen">
-
   <div class="panel leftPanel">
     <div class="mobileHeader">
       <img id="portrait" class="portrait">
@@ -48,9 +45,7 @@
         <div>Gold: <span id="goldText" class="gold">0</span></div>
         <div style="color:#4caf50;font-weight:bold;" id="turnText">Tur: 1/50</div>
       </div>
-      <button class="shopBtn" id="openShopBtn" title="Dükkan">
-        🛒
-      </button>
+      <button class="shopBtn" id="openShopBtn" title="Dükkan">🛒</button>
     </div>
 
     <div class="leftBox">
@@ -61,15 +56,10 @@
     <div class="leftBox">
       <h3>Özellikler</h3>
       <div id="featuresArea" style="font-size:11px;max-height:250px;overflow-y:auto;">
-        <!-- Karakter Pasifi -->
         <div id="passiveArea" style="margin-bottom:8px;"></div>
-        
-        <!-- Yardımcı -->
         <div id="companionArea" style="margin-bottom:8px;">
           <div style="color:#888;font-size:10px;">Yardımcı: Tur 25'te seçilecek</div>
         </div>
-
-        <!-- Augmentler -->
         <div id="augmentsArea"></div>
       </div>
     </div>
@@ -93,107 +83,19 @@
     <h3>Savaş Günlüğü</h3>
     <div class="log" id="logPanel"></div>
   </div>
-
 </div>
 
 <div class="tooltip" id="tooltip"></div>
-<!-- Mobil Karakter Drawer Butonu -->
+
+<!-- ✅ MOBİL BUTONLAR - SADECE BUNLAR KALACAK -->
 <button class="character-drawer-btn" id="characterDrawerBtn">👤</button>
-
-<!-- Karakter Drawer -->
-<div class="character-drawer" id="characterDrawer">
-  <div class="character-drawer-header">
-    <div class="character-drawer-title">⚔️ Karakter Bilgileri</div>
-    <button class="character-drawer-close" id="drawerCloseBtn">✖</button>
-  </div>
-  <div class="character-drawer-content" id="drawerContent">
-    <!-- leftPanel içeriği buraya kopyalanacak -->
-  </div>
-</div>
-
-<script>
-// Karakter Drawer Toggle
-document.addEventListener('DOMContentLoaded', () => {
-  const drawerBtn = document.getElementById('characterDrawerBtn');
-  const drawer = document.getElementById('characterDrawer');
-  const closeBtn = document.getElementById('drawerCloseBtn');
-  const drawerContent = document.getElementById('drawerContent');
-  const leftPanel = document.querySelector('.leftPanel');
-  
-  function openDrawer() {
-    // leftPanel içeriğini kopyala
-    if (leftPanel) {
-      drawerContent.innerHTML = leftPanel.innerHTML;
-    }
-    drawer.classList.add('active');
-    drawerBtn.classList.add('active');
-  }
-  
-  function closeDrawer() {
-    drawer.classList.remove('active');
-    drawerBtn.classList.remove('active');
-  }
-  
-  if (drawerBtn) drawerBtn.onclick = openDrawer;
-  if (closeBtn) closeBtn.onclick = closeDrawer;
-  
-  // Drawer dışına tıklanınca kapat
-  drawer.onclick = (e) => {
-    if (e.target === drawer) closeDrawer();
-  };
-});
-</script>
-
-<!-- Script sadece bir kez, body sonunda -->
-<script src="game.js"></script>
-<!-- Mobil Log Toggle Butonu -->
 <button class="log-toggle-btn" id="logToggleBtn">📜</button>
 
-<script>
-// Mobil log toggle
-document.addEventListener('DOMContentLoaded', () => {
-  const logToggle = document.getElementById('logToggleBtn');
-  const rightPanel = document.querySelector('.rightPanel');
-  
-  if (logToggle && rightPanel) {
-    logToggle.onclick = () => {
-      rightPanel.classList.toggle('active');
-      logToggle.classList.toggle('active');
-      
-      // İkon değiştir
-      logToggle.textContent = rightPanel.classList.contains('active') ? '✖️' : '📜';
-    };
-    
-    // Dışarı tıklanınca kapat
-    document.addEventListener('click', (e) => {
-      if (rightPanel.classList.contains('active') && 
-          !rightPanel.contains(e.target) && 
-          e.target !== logToggle) {
-        rightPanel.classList.remove('active');
-        logToggle.classList.remove('active');
-        logToggle.textContent = '📜';
-      }
-    });
-  }
-});
-</script>
-<!-- Mobil Karakter Drawer Butonu -->
-<button class="character-drawer-btn" id="characterDrawerBtn" style="display:none;">
-  👤
-</button>
-
-<!-- Mobil Log Toggle Butonu -->
-<button class="log-toggle-btn" id="logToggleBtn" style="display:none;">
-  📜
-</button>
-
-<!-- Karakter Drawer -->
+<!-- ✅ KARAKTER DRAWER - TEK KOPYA -->
 <div class="character-drawer" id="characterDrawer">
-  <div class="character-drawer-content" id="drawerContent">
-    <!-- Dinamik içerik buraya gelecek -->
-  </div>
+  <div class="character-drawer-content" id="drawerContent"></div>
 </div>
 
-</body>
+<script src="game.js"></script>
 </body>
 </html>
