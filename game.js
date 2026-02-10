@@ -2497,28 +2497,23 @@ function trackTurnComplete() {
 // Eski startBtn onclick yerine yeni sistem kullan
 document.addEventListener('DOMContentLoaded', () => {
   updateLoginScreen();
+
 });
 
-// ✅ FLOATING ACTION PANEL GÖSTER
 function showFloatingActionPanel(enemy, laneIndex, enemyIndex) {
-  // Mevcut paneli kaldır
   hideFloatingActionPanel();
   
-  // Overlay oluştur
   const overlay = document.createElement('div');
   overlay.className = 'floating-action-overlay';
   overlay.id = 'floatingActionOverlay';
   overlay.onclick = hideFloatingActionPanel;
   document.body.appendChild(overlay);
-  
   setTimeout(() => overlay.classList.add('active'), 10);
   
-  // Panel oluştur
   const panel = document.createElement('div');
   panel.className = 'floating-action-panel';
   panel.id = 'floatingActionPanel';
   
-  // Skill maliyeti hesapla
   let skillCost = player.skillCost;
   if (player.name === "Fern") skillCost = Math.floor(skillCost * 0.8);
   if (companion && companion.bonus.type === "intelligence") skillCost = Math.floor(skillCost * 0.80);
@@ -2529,27 +2524,27 @@ function showFloatingActionPanel(enemy, laneIndex, enemyIndex) {
   panel.innerHTML = `
     <div class="floating-action-panel-header">
       <div class="floating-action-panel-title">🎯 Hedef Seçildi</div>
-      <div class="floating-action-panel-target">${enemy.name} (${enemy.hp} HP)</div>
     </div>
     <div class="floating-action-buttons">
       <button class="floating-action-btn attack" id="floatingAttackBtn">
-        ⚔️<br>Saldır
+        <div class="btn-icon">⚔️</div>
+        <div class="btn-label">Saldır</div>
       </button>
       <button class="floating-action-btn skill" id="floatingSkillBtn" ${!canUseSkill ? 'disabled' : ''}>
-        🔮<br>Skill
+        <div class="btn-icon">🔮</div>
+        <div class="btn-label">Skill</div>
         ${skillCost > 0 ? `<span class="cost-badge">${skillCost}</span>` : ''}
       </button>
       <button class="floating-action-btn defend" id="floatingDefendBtn">
-        🛡️<br>Savun
+        <div class="btn-icon">🛡️</div>
+        <div class="btn-label">Savun</div>
       </button>
     </div>
   `;
   
   document.body.appendChild(panel);
-  
   setTimeout(() => panel.classList.add('active'), 10);
   
-  // Button events
   document.getElementById('floatingAttackBtn').onclick = () => {
     hideFloatingActionPanel();
     performAttack();
@@ -2695,6 +2690,8 @@ function toggleCharacterDrawer() {
   const drawer = document.getElementById('characterDrawer');
   const btn = document.getElementById('characterDrawerBtn');
   
+  if (!drawer || !btn) return;
+  
   if (drawer.classList.contains('active')) {
     drawer.classList.remove('active');
     btn.classList.remove('active');
@@ -2708,8 +2705,10 @@ function toggleCharacterDrawer() {
 function updateDrawerContent() {
   const drawerContent = document.getElementById('drawerContent');
   
-  if (!player) {
-    drawerContent.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Oyun başlamadı</p>';
+  if (!player || !drawerContent) {
+    if (drawerContent) {
+      drawerContent.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Oyun başlamadı</p>';
+    }
     return;
   }
   
@@ -2734,43 +2733,23 @@ function updateDrawerContent() {
         </div>
       </div>
     </div>
-  `;
-  
-  html += `
+    
     <div class="drawer-stats">
-      <div class="drawer-stat-item">
-        ⚔️ AD<br><span class="drawer-stat-value">${player.ad}</span>
-      </div>
-      <div class="drawer-stat-item">
-        🔮 AP<br><span class="drawer-stat-value">${player.ap}</span>
-      </div>
-      <div class="drawer-stat-item">
-        🛡️ Zırh<br><span class="drawer-stat-value">${player.armor}</span>
-      </div>
-      <div class="drawer-stat-item">
-        🔰 MR<br><span class="drawer-stat-value">${player.mr}</span>
-      </div>
-      <div class="drawer-stat-item">
-        💥 Kritik<br><span class="drawer-stat-value">${player.critChance}%</span>
-      </div>
-      <div class="drawer-stat-item">
-        💉 Can Çalma<br><span class="drawer-stat-value">${Math.floor(player.lifesteal*100)}%</span>
-      </div>
+      <div class="drawer-stat-item">⚔️ AD<br><span class="drawer-stat-value">${player.ad}</span></div>
+      <div class="drawer-stat-item">🔮 AP<br><span class="drawer-stat-value">${player.ap}</span></div>
+      <div class="drawer-stat-item">🛡️ Zırh<br><span class="drawer-stat-value">${player.armor}</span></div>
+      <div class="drawer-stat-item">🔰 MR<br><span class="drawer-stat-value">${player.mr}</span></div>
+      <div class="drawer-stat-item">💥 Kritik<br><span class="drawer-stat-value">${player.critChance}%</span></div>
+      <div class="drawer-stat-item">💉 Can Çalma<br><span class="drawer-stat-value">${Math.floor(player.lifesteal*100)}%</span></div>
     </div>
-  `;
-  
-  html += `
+    
     <div class="drawer-items">
       <div class="drawer-section-title">🎒 Eşyalar</div>
       <div class="drawer-item-grid">
   `;
   
   passiveItems.forEach(item => {
-    html += `
-      <div class="drawer-item-slot passive" title="${item.name}">
-        <img src="${item.img}" alt="${item.name}">
-      </div>
-    `;
+    html += `<div class="drawer-item-slot passive" title="${item.name}"><img src="${item.img}" alt="${item.name}"></div>`;
   });
   
   Object.values(inventory).forEach(entry => {
@@ -2778,19 +2757,10 @@ function updateDrawerContent() {
       <div class="drawer-item-slot" title="${entry.item.name}">
         <img src="${entry.item.img}" alt="${entry.item.name}">
         ${entry.count > 1 ? `<span class="stack-count">${entry.count}</span>` : ''}
-      </div>
-    `;
+      </div>`;
   });
   
-  html += `
-      </div>
-    </div>
-  `;
-  
-  html += `
-    <div class="drawer-features">
-      <div class="drawer-section-title">✨ Özellikler</div>
-  `;
+  html += `</div></div><div class="drawer-features"><div class="drawer-section-title">✨ Özellikler</div>`;
   
   html += `
     <div class="drawer-feature-item passive">
@@ -2799,8 +2769,7 @@ function updateDrawerContent() {
         <div class="drawer-feature-name">🎭 Karakter Pasifi</div>
         <div class="drawer-feature-desc">${player.passive.text}</div>
       </div>
-    </div>
-  `;
+    </div>`;
   
   if (companion) {
     html += `
@@ -2810,45 +2779,37 @@ function updateDrawerContent() {
           <div class="drawer-feature-name">🎖️ ${companion.name}</div>
           <div class="drawer-feature-desc">${companion.bonus.text}</div>
         </div>
-      </div>
-    `;
+      </div>`;
   }
   
   selectedAugments.forEach(augId => {
     let aug = null;
     for (let tier in augments) {
       const found = augments[tier].find(a => a.id === augId);
-      if (found) {
-        aug = found;
-        break;
-      }
+      if (found) { aug = found; break; }
     }
     
     if (aug) {
       html += `
         <div class="drawer-feature-item augment">
-          <div class="drawer-feature-icon" style="display:flex;align-items:center;justify-content:center;font-size:24px;background:#2a2a2a;">
-            ${aug.icon}
-          </div>
+          <div class="drawer-feature-icon" style="display:flex;align-items:center;justify-content:center;font-size:24px;background:#2a2a2a;">${aug.icon}</div>
           <div class="drawer-feature-text">
             <div class="drawer-feature-name">✨ ${aug.name}</div>
             <div class="drawer-feature-desc">${aug.desc}</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }
   });
   
-  html += `
-    </div>
-  `;
-  
+  html += `</div>`;
   drawerContent.innerHTML = html;
 }
 
 function updateCharacterDrawerVisibility() {
   const btn = document.getElementById('characterDrawerBtn');
   const logBtn = document.getElementById('logToggleBtn');
+  
+  if (!btn || !logBtn) return;
   
   if (window.innerWidth <= 768) {
     if (player && gameScreen.classList.contains('active')) {
@@ -2870,26 +2831,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const drawer = document.getElementById('characterDrawer');
   const rightPanel = document.querySelector('.rightPanel');
   
+  // ✅ KARAKTER DRAWER TOGGLE
   if (drawerBtn) {
-    drawerBtn.onclick = toggleCharacterDrawer;
+    drawerBtn.onclick = (e) => {
+      e.stopPropagation();
+      toggleCharacterDrawer();
+    };
   }
   
+  // ✅ DRAWER DIŞINA TIKLANINCA KAPAT
   if (drawer) {
     drawer.onclick = (e) => {
       if (e.target === drawer) {
         drawer.classList.remove('active');
-        drawerBtn.classList.remove('active');
+        if (drawerBtn) drawerBtn.classList.remove('active');
       }
     };
   }
   
+  // ✅ LOG TOGGLE
   if (logBtn && rightPanel) {
-    logBtn.onclick = () => {
+    logBtn.onclick = (e) => {
+      e.stopPropagation();
       rightPanel.classList.toggle('active');
       logBtn.classList.toggle('active');
       logBtn.textContent = rightPanel.classList.contains('active') ? '✖️' : '📜';
     };
     
+    // ✅ LOG DIŞINA TIKLANINCA KAPAT
     document.addEventListener('click', (e) => {
       if (rightPanel.classList.contains('active') && 
           !rightPanel.contains(e.target) && 
@@ -2901,6 +2870,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // ✅ EKRAN BOYUTU DEĞİŞİNCE KONTROL ET
   window.addEventListener('resize', updateCharacterDrawerVisibility);
   updateCharacterDrawerVisibility();
+  
+  // ✅ LOGİN EKRANI
+  updateLoginScreen();
 });
