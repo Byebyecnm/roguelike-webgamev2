@@ -1804,28 +1804,7 @@ button:active {
   pointer-events: all;
 }
 
-/* ========== MOBİL KARAKTER PANELİ DRAWER ========== */
-
-.character-drawer-btn {
-  display: none;
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6b3fa0 0%, #4a2870 100%);
-  border: 3px solid gold;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* ========== MOBİL KARAKTER PANELİ DRAWER ==========*/
 
 .character-drawer-btn:active {
   transform: scale(0.9);
