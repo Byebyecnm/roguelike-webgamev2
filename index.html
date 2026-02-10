@@ -97,6 +97,52 @@
 </div>
 
 <div class="tooltip" id="tooltip"></div>
+<!-- Mobil Karakter Drawer Butonu -->
+<button class="character-drawer-btn" id="characterDrawerBtn">👤</button>
+
+<!-- Karakter Drawer -->
+<div class="character-drawer" id="characterDrawer">
+  <div class="character-drawer-header">
+    <div class="character-drawer-title">⚔️ Karakter Bilgileri</div>
+    <button class="character-drawer-close" id="drawerCloseBtn">✖</button>
+  </div>
+  <div class="character-drawer-content" id="drawerContent">
+    <!-- leftPanel içeriği buraya kopyalanacak -->
+  </div>
+</div>
+
+<script>
+// Karakter Drawer Toggle
+document.addEventListener('DOMContentLoaded', () => {
+  const drawerBtn = document.getElementById('characterDrawerBtn');
+  const drawer = document.getElementById('characterDrawer');
+  const closeBtn = document.getElementById('drawerCloseBtn');
+  const drawerContent = document.getElementById('drawerContent');
+  const leftPanel = document.querySelector('.leftPanel');
+  
+  function openDrawer() {
+    // leftPanel içeriğini kopyala
+    if (leftPanel) {
+      drawerContent.innerHTML = leftPanel.innerHTML;
+    }
+    drawer.classList.add('active');
+    drawerBtn.classList.add('active');
+  }
+  
+  function closeDrawer() {
+    drawer.classList.remove('active');
+    drawerBtn.classList.remove('active');
+  }
+  
+  if (drawerBtn) drawerBtn.onclick = openDrawer;
+  if (closeBtn) closeBtn.onclick = closeDrawer;
+  
+  // Drawer dışına tıklanınca kapat
+  drawer.onclick = (e) => {
+    if (e.target === drawer) closeDrawer();
+  };
+});
+</script>
 
 <!-- Script sadece bir kez, body sonunda -->
 <script src="game.js"></script>
